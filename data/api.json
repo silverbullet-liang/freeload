@@ -1,0 +1,132 @@
+[
+  {
+    "name": "edge.text-to-speech.cn",
+    "url": "https://edge.text-to-speech.cn",
+    "what": "免登录的 Edge TTS 代理：322 个音色（142 个 locale，含 8 个 zh-CN、3 个粤语），POST /generate.php 一次出 MP3（24kHz/48kbps/mono）+ 逐句 SRT 字幕",
+    "gate": "免注册",
+    "group": "语音",
+    "rating": "夯",
+    "gotcha": "每次先 GET 首页取 csrf-token，请求必须带 Referer 或 Origin，否则报「不允许的请求来源」；假成功陷阱：非法 voice 或 volume=0 也返回 200 + URL，下载到的是 32315 字节 HTML（md5 048a2241792d9efbc94d44a256d40ca4），必须验 MP3 帧同步 0xFF Ex 或 ID3；产物公开可下载、无鉴权；字幕按句切不智能断句；第三方逆向封装，随时可能关",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "浏览器 TTS 三件套",
+    "url": "https://developer.mozilla.org/docs/Web/API/SpeechSynthesis",
+    "what": "Web Speech API（系统音色、完全免费离线）+ DECtalk WASM（1983 年老引擎，仅英文，11025Hz PCM）+ ResponsiveVoice CDN（51 语言 168 音色，旧版免 key）",
+    "gate": "免注册",
+    "group": "语音",
+    "rating": "人上人",
+    "gotcha": "Web Speech 各系统音色差异极大，Safari 长文本会截断；DECtalk 首次播放必须用户交互解锁 AudioContext；ResponsiveVoice 新版要 key 且仅限非商业；三者都不是「接口」，是前端方案，服务端批量合成用不上",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "米人 API",
+    "url": "https://api.mir6.com/api/bzjiexi",
+    "what": "免费 B 站解析，GET ?url=<BV 链接> 返回标题、封面、简介与 data 数组（含直链），开放 CORS",
+    "gate": "免注册",
+    "group": "视频解析",
+    "rating": "顶级",
+    "gotcha": "仅普通 BV 视频，番剧/电影/电视剧不支持；返回的是 DASH 分离流，视频音频要自己 ffmpeg 合流；第三方站点随时限流，别当前端唯一依赖",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "呆错 API",
+    "url": "https://api.daicuo.cc/parse/",
+    "what": "多平台点播解析（B 站、腾讯、爱奇艺、优酷、A 站），返回播放器嵌入地址或直链",
+    "gate": "邮箱",
+    "group": "视频解析",
+    "rating": "人上人",
+    "gotcha": "必须登录拿 token；返回可能是播放器嵌入地址而不是直链；本次未实测（需注册），用前自测",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "zm.wwoyun.cn",
+    "url": "https://zm.wwoyun.cn",
+    "what": "NeteaseCloudMusicApi 公共实例（宁波），搜索 / 直链 / 详情 / 歌词全套，接口与官方一致，实测搜索 200",
+    "gate": "免注册",
+    "group": "音乐",
+    "rating": "夯",
+    "gotcha": "直链数小时后失效，别写死；公共实例无 SLA，随时可能关；部分歌曲只给试听片段，别把 br 当音质承诺",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "Injahow Meting",
+    "url": "https://api.injahow.cn/meting/",
+    "what": "Meting 轻接口：type=url 直接回 MP3 二进制流，type=song 出歌名/歌手/封面/歌词地址，type=lrc 回 LRC",
+    "gate": "免注册",
+    "group": "音乐",
+    "rating": "夯",
+    "gotcha": "封面要传封面 ID（从 type=song 响应里取），不是歌曲 ID；直链有时效；单点第三方，挂了没有备用",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "Paugram NetEase",
+    "url": "https://api.paugram.com/netease/",
+    "what": "歌曲详情 + 完整带时间轴歌词 + 250×250 封面，返回 JSON",
+    "gate": "免注册",
+    "group": "音乐",
+    "rating": "人上人",
+    "gotcha": "不返回音频直链，必须和别的接口搭配；封面只有 250px，做全屏背景会糊",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "网易云官方外链",
+    "url": "https://music.163.com/song/media/outer/url?id={id}.mp3",
+    "what": "302 跳到 CDN 直链，CORS 为 *，一行 <audio src> 就能播",
+    "gate": "免注册",
+    "group": "音乐",
+    "rating": "人上人",
+    "gotcha": "时效只有数十分钟；只给试听/标准音质；版权受限曲目直接 404 或跳到空；实测 302 可用",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "Open-Meteo",
+    "url": "https://api.open-meteo.com/v1/forecast",
+    "what": "逐日 / 逐小时预报、地理编码（geocoding-api）、空气质量（air-quality-api）三套接口全免 key、开放 CORS，实测 200",
+    "gate": "免注册",
+    "group": "天气",
+    "rating": "夯",
+    "gotcha": "免费档限非商业，商用要订阅；中国区降水与云量精度一般；geocoding 中文有时取到乡镇级，要自己按 population 排序；变量名拼错不会报错、只回空数组",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "wttr.in",
+    "url": "https://wttr.in/Beijing?format=j1",
+    "what": "文本 / Markdown / JSON 三种输出，format=j1 给完整 JSON（当前天气 + 3 天逐时 + 天文），免 key",
+    "gate": "免注册",
+    "group": "天气",
+    "rating": "顶级",
+    "gotcha": "无 SLA，高峰期明显变慢；中文城市名必须 URL 编码；j1 里数值全是字符串，运算前要转；返回体积大，前端别整包塞进状态",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "MET Norway",
+    "url": "https://api.met.no/weatherapi/locationforecast/2.0/compact",
+    "what": "挪威气象局全球预报，compact 端点返回 GeoJSON 时序，免 key",
+    "gate": "免注册",
+    "group": "天气",
+    "rating": "人上人",
+    "gotcha": "强制要求带可识别的 User-Agent（含联系方式），UGC 抓取会被封；挪威境外精度一般；有小时级限流",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "7Timer",
+    "url": "https://www.7timer.info/bin/astro.php",
+    "what": "天文与常规两套产品，astro 给云量 / 视宁度 / 透明度，观星与摄影场景好用",
+    "gate": "免注册",
+    "group": "天气",
+    "rating": "人上人",
+    "gotcha": "6 小时一更新、网格分辨率粗；无中文；部分产品线已停更",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "中央气象台 nmc.cn",
+    "url": "http://www.nmc.cn/rest/province",
+    "what": "非公开接口：/rest/province 省市列表、/f/rest/tempchart 温度曲线、/f/rest/aqi 空气质量、/f/rest/real 实况",
+    "gate": "免注册",
+    "group": "天气",
+    "rating": "人上人",
+    "gotcha": "非官方 API，随时改；实测 /rest/province 正常，/f/rest/real/54511 返回结构在但字段全空；只适合当兜底，别当主数据源",
+    "checked": "2026-10-25"
+  }
+]

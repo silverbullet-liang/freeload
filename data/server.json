@@ -1,1 +1,106 @@
-[]
+[
+  {
+    "name": "Cloudflare Pages",
+    "url": "https://pages.cloudflare.com",
+    "what": "500 次构建/月、单站点 2 万文件、单文件 25MiB、100 个项目、静态请求不限带宽、预览部署无限、自定义域名 100 个",
+    "gate": "邮箱",
+    "group": "静态部署",
+    "rating": "夯",
+    "score": {
+      "speed": 5,
+      "quick": 4,
+      "limits": 5
+    },
+    "ads": "无",
+    "flaws": "单文件 25MiB 上限；新账号 48 小时内限建项目",
+    "gotcha": "单文件必须 ≤25MiB，更大要走 R2；新账号头两天限制新建项目；Functions 请求计入 Workers 配额；构建 20 分钟超时",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "InfinityFree",
+    "url": "https://infinityfree.com",
+    "what": "5GB 存储、不限带宽（公平使用）、400 个 MySQL 数据库、PHP 8.3/8.4、免费 SSL、免费子域或自定义域名、无强制广告，单账号可开 3 个 hosting account",
+    "gate": "邮箱",
+    "group": "动态部署",
+    "rating": "夯",
+    "score": {
+      "speed": 2,
+      "quick": 2,
+      "limits": 3
+    },
+    "ads": "无",
+    "flaws": "反爬二次导航拖首屏、PHP 10 秒、无 cron、每日 5 万 hits",
+    "gotcha": "每日 50,000 hits 硬限（按文件请求算，一页 11 次请求，约合 4,500 浏览量/天）；30,000 inode；单文件 10MB；超限自动暂停约 24 小时；PHP 执行约 10 秒；免费档无 SSH、无 cron；页面注入 /aes.js 反爬并触发一次二次导航；只支持 HTTP/1.1；长期无访问停用；实测有因「不允许的文件」整站被删的先例",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "GitHub Pages",
+    "url": "https://pages.github.com",
+    "what": "站点 1GB、软带宽 100GB/月、软构建 10 次/小时（改用 Actions 部署不受此限）、自定义域名 + 自动 HTTPS",
+    "gate": "GitHub",
+    "group": "静态部署",
+    "rating": "顶级",
+    "score": {
+      "speed": 3,
+      "quick": 4,
+      "limits": 4
+    },
+    "ads": "无",
+    "flaws": "必须公开仓库、不许商用、国内慢且丢包",
+    "gotcha": "免费账号只能公开仓库；官方明令禁止当免费主机跑商业站/电商/SaaS；国内访问慢且丢包；超限返回 429；站点与源仓库各 1GB",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "上码 Upma",
+    "url": "https://www.upma.cn",
+    "what": "2 个项目、1GB 流量/月、单次上传 10MB、总存储 100MB、自定义域名 + 自动 SSL、香港 CN2 免备案",
+    "gate": "实名",
+    "group": "静态部署",
+    "rating": "人上人",
+    "score": {
+      "speed": 5,
+      "quick": 5,
+      "limits": 2
+    },
+    "ads": "页脚「托管于上码」标识 + 右下角悬浮微件",
+    "flaws": "额度只够小 Demo；子域归平台所有、闲置可收回",
+    "gotcha": "免费版页面底部挂「托管于上码」标识；超额 402 或暂停到下月；*.upma.site 子域归平台所有、闲置可收回；只托管静态文件；官网自标国内丢包 25%",
+    "strip_code": "<script>\n(function(){\n  function strip(){\n    document.querySelectorAll('[data-shangma-branding],[data-shangma-report-modal],.upma-micro-widget')\n      .forEach(function(el){el.remove()});\n  }\n  strip();\n  if(document.body&&window.MutationObserver){\n    new MutationObserver(strip).observe(document.body,{childList:true,subtree:true});\n  }\n})();\n</script>",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "ship.page",
+    "url": "https://ship.page",
+    "what": "匿名上传 HTML（10MB）/ ZIP（25MB、100 文件）/ 文件夹，秒出链接；纯 REST API 一次 POST 即部署；匿名 30 天、注册免费账号 90 天",
+    "gate": "免注册",
+    "group": "静态部署",
+    "rating": "人上人",
+    "score": {
+      "speed": 3,
+      "quick": 5,
+      "limits": 3
+    },
+    "ads": "有徽章（客户端注入，非必现）",
+    "flaws": "单文件 10MB；不能绑域名、不能原地更新；30 天到期",
+    "gotcha": "单文件 10MB；不能绑自定义域名、不能原地更新（Pro 才有）；链接 47 位熵、无密码保护；10 次部署/分钟/IP；域名会变，实测 *.ship.place；过期后 30 天内可 restore；Pro $4/月（永久 + 密码保护 + 120 次/分）",
+    "strip_code": "<script>\n(function(){\n  var sel=\"ship-page-badge,.ship-page-badge\";\n  function strip(){\n    document.querySelectorAll(sel).forEach(function(el){el.remove()});\n  }\n  strip();\n  if(document.body&&window.MutationObserver){\n    new MutationObserver(strip).observe(document.body,{childList:true,subtree:true});\n  }\n})();\n</script>",
+    "checked": "2026-10-25"
+  },
+  {
+    "name": "ByetHost",
+    "url": "https://byet.host",
+    "what": "5GB NVMe、不限带宽、PHP 8.3、MySQL 8、无限数据库、免费 SSL、cron jobs、400+ Softaculous 应用、无广告、无到期（byethost33 是其中一台节点）",
+    "gate": "邮箱",
+    "group": "动态部署",
+    "rating": "人上人",
+    "score": {
+      "speed": 2,
+      "quick": 1,
+      "limits": 3
+    },
+    "ads": "无",
+    "flaws": "VistaPanel 繁琐、凭据只显示一次、一账号一站",
+    "gotcha": "一个账号只给一个 hosting account；账号名与密码创建时只显示一次，丢了只能重置；VistaPanel 难用；单文件 10MB；免费档切 PHP 版本要升级；同属 iFastNet，与 InfinityFree 共享底层资源限制；自定义域名要自己配 DNS",
+    "checked": "2026-10-25"
+  }
+]
