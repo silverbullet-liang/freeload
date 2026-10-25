@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>铁律 | Ironclad - 高精度代码生成约束系统</title>
+    <!-- 引入 marked.js 用于 Markdown 渲染 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --bg-elevated: #13131a;
+            --bg-overlay: #1e1e2e;
+            --border: #2a2a3c;
+            --text-primary: #e2e2e8;
+            --text-secondary: #8b8b9e;
+            --accent: #00ff88;
+            --accent-dim: #00ff8866;
+            --accent-glow: #00ff881a;
+            --error: #ff3366;
+            --warn: #ffaa33;
+            --info: #33ccff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, Monaco, monospace;
+            background: var(--bg); color: var(--text-primary); line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+        body * { user-select: none; -webkit-user-select: none; }
+        .allow-select, .allow-select * { user-select: text; -webkit-user-select: text; }
+        a, button, .card, .tag, .nav-link, .btn-download, .menu-btn, .close-btn, .toc-link { cursor: pointer; }
+        
+        /* ===== Nav & Drawer ===== */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(10, 10, 15, 0.85); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border); padding: 0 24px;
+        }
+        .nav-inner {
+            max-width: 1100px; margin: 0 auto; height: 56px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .nav-left { display: flex; align-items: center; gap: 16px; }
+        .menu-btn {
+            background: transparent; border: none; color: var(--text-secondary);
+            display: flex; align-items: center; justify-content: center; padding: 4px; transition: color 0.15s;
+        }
+        .menu-btn:hover { color: var(--accent); }
+        .logo { font-weight: 700; font-size: 14px; color: var(--accent); letter-spacing: 0.05em; }
+        .logo::before { content: '■'; color: var(--text-secondary); margin-right: 10px; font-size: 10px; }
+        .nav-right { display: flex; align-items: center; gap: 24px; }
+        .nav-links { display: none; gap: 24px; }
+        @media (min-width: 1024px) { .nav-links { display: flex; } }
+        .nav-link { font-size: 12px; color: var(--text-secondary); text-decoration: none; letter-spacing: 0.03em; transition: color 0.15s linear; }
+        .nav-link:hover { color: var(--text-primary); }
+        .lang-switch { display: flex; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+        .lang-btn { background: transparent; border: none; color: var(--text-secondary); padding: 4px 8px; font-size: 11px; font-family: inherit; transition: all 0.15s; cursor: pointer; }
+        .lang-btn:not(:last-child) { border-right: 1px solid var(--border); }
+        .lang-btn.active { background: var(--bg-overlay); color: var(--accent); font-weight: bold; }
+
+        .drawer-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+            z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+        .toc-drawer {
+            position: fixed; top: 0; left: 0; width: 280px; height: 100vh;
+            background: var(--bg-elevated); border-right: 1px solid var(--border); z-index: 200;
+            transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column;
+        }
+        .toc-drawer.open { transform: translateX(0); }
+        .toc-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); }
+        .toc-title { font-size: 13px; color: var(--accent); letter-spacing: 0.08em; font-weight: 600; }
+        .close-btn { background: transparent; border: none; color: var(--text-secondary); display: flex; align-items: center; padding: 4px; transition: color 0.15s; }
+        .close-btn:hover { color: var(--text-primary); }
+        .toc-list { list-style: none; padding: 24px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+        .toc-link { font-size: 13px; color: var(--text-secondary); text-decoration: none; transition: color 0.15s; display: flex; align-items: center; gap: 12px; }
+        .toc-link::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--border); border-radius: 50%; transition: all 0.15s; }
+        .toc-link:hover { color: var(--text-primary); }
+        .toc-link.active { color: var(--accent); }
+        .toc-link.active::before { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+        /* ===== Hero & Sections ===== */
+        .hero {
+            min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+            max-width: 1100px; margin: 0 auto; padding: 100px 24px 60px; position: relative;
+        }
+        .hero-badge { font-size: 11px; color: var(--accent); border: 1px solid var(--accent-dim); padding: 4px 12px; margin-bottom: 24px; letter-spacing: 0.08em; }
+        .hero h1 { font-size: clamp(48px, 10vw, 96px); font-weight: 700; line-height: 1; margin-bottom: 16px; letter-spacing: -0.04em; }
+        .hero-sub { font-size: clamp(18px, 3vw, 28px); color: var(--text-secondary); font-weight: 400; margin-bottom: 24px; letter-spacing: 0.02em; }
+        .hero-desc { font-size: 15px; color: var(--text-secondary); max-width: 520px; margin-bottom: 32px; line-height: 1.8; }
+        .hero-actions { display: flex; gap: 16px; margin-bottom: 48px; flex-wrap: wrap; }
+        .btn-download {
+            display: inline-flex; align-items: center; gap: 10px; background: var(--accent); color: var(--bg);
+            border: none; padding: 12px 24px; font-family: inherit; font-size: 13px; font-weight: 600;
+            letter-spacing: 0.03em; text-decoration: none; transition: opacity 0.15s linear;
+        }
+        .btn-download:hover { opacity: 0.85; }
+        .btn-secondary {
+            display: inline-flex; align-items: center; gap: 10px; background: transparent; color: var(--text-secondary);
+            border: 1px solid var(--border); padding: 12px 24px; font-family: inherit; font-size: 13px;
+            font-weight: 600; letter-spacing: 0.03em; text-decoration: none; transition: all 0.15s linear;
+        }
+        .btn-secondary:hover { border-color: var(--accent-dim); color: var(--text-primary); }
+        .hero-meta { display: flex; gap: 24px; font-size: 12px; color: var(--text-secondary); }
+        .hero-meta span::before { content: '['; color: var(--border); }
+        .hero-meta span::after { content: ']'; color: var(--border); }
+        .hero-meta .status-ok { color: var(--accent); }
+        .hero::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px; pointer-events: none; z-index: -1;
+        }
+        section { max-width: 1100px; margin: 0 auto; padding: 80px 24px; border-top: 1px solid var(--border); }
+        .section-header { margin-bottom: 48px; }
+        .section-header h2 { font-size: 13px; color: var(--accent); letter-spacing: 0.1em; margin-bottom: 12px; font-weight: 600; }
+        .section-header h3 { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; }
+        .section-header p { color: var(--text-secondary); font-size: 14px; margin-top: 12px; max-width: 600px; }
+
+        /* ===== Directives & Details ===== */
+        .directive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+        .card { background: var(--bg-elevated); border: 1px solid var(--border); padding: 28px; transition: all 0.15s; }
+        .card:hover { border-color: var(--accent-dim); background: var(--bg-overlay); }
+        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .card-icon { width: 36px; height: 36px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--accent); flex-shrink: 0; }
+        .card-title { font-size: 14px; font-weight: 600; letter-spacing: 0.02em; }
+        .card-id { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+        .card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+        .card-tags { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+        .tag { font-size: 10px; padding: 3px 10px; border: 1px solid var(--border); color: var(--text-secondary); letter-spacing: 0.05em; }
+        .tag.core { border-color: var(--accent-dim); color: var(--accent); }
+
+        .detail-list { border-top: 1px solid var(--border); }
+        .detail-item { border-bottom: 1px solid var(--border); padding: 32px 0; }
+        .detail-item-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 16px; }
+        .detail-num { font-size: 12px; color: var(--accent); font-weight: 600; min-width: 28px; }
+        .detail-item h4 { font-size: 16px; font-weight: 600; }
+        .detail-item p { font-size: 14px; color: var(--text-secondary); padding-left: 44px; line-height: 1.8; }
+        .detail-item .highlight { color: var(--text-primary); background: var(--bg-overlay); padding: 2px 6px; font-size: 12px; }
+
+        /* ===== Lists (Anti-patterns, Forbidden, Methods) ===== */
+        .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .list-item {
+            background: var(--bg-elevated); border: 1px solid var(--border); padding: 24px;
+            display: flex; flex-direction: column; gap: 8px; transition: border-color 0.15s;
+        }
+        .list-item:hover { border-color: var(--accent-dim); }
+        .list-title { font-size: 14px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+        .list-title::before { content: '>'; color: var(--accent); font-weight: 700; }
+        .list-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+        
+        /* ===== Styles Excerpt ===== */
+        .style-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .style-card { background: var(--bg-elevated); border: 1px solid var(--border); padding: 24px; transition: border-color 0.15s; }
+        .style-card:hover { border-color: var(--accent-dim); }
+        .style-name { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .style-name span { font-size: 10px; padding: 2px 6px; background: var(--accent-glow); color: var(--accent); border: 1px solid var(--accent-dim); }
+        .style-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+
+        /* ===== Proof of Work ===== */
+        .prompt-preview { margin-bottom: 32px; background: var(--bg-elevated); border: 1px solid var(--border); }
+        .prompt-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--border); background: var(--bg-overlay); }
+        .prompt-header span { font-size: 11px; color: var(--text-secondary); letter-spacing: 0.05em; }
+        .prompt-dots { display: flex; gap: 6px; }
+        .prompt-dots i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+        .prompt-dots i:nth-child(1) { background: var(--error); }
+        .prompt-dots i:nth-child(2) { background: var(--warn); }
+        .prompt-dots i:nth-child(3) { background: var(--accent); }
+        .prompt-body { padding: 20px; font-size: 12px; line-height: 1.9; color: var(--text-secondary); max-height: 240px; overflow-y: auto; }
+        .prompt-body h5 { font-size: 12px; color: var(--text-primary); font-weight: 600; margin: 16px 0 8px; }
+        .prompt-body h5:first-child { margin-top: 0; }
+        .prompt-body ul { margin-left: 16px; margin-bottom: 12px; }
+        .prompt-body li { margin-bottom: 4px; }
+
+        .model-group { margin-bottom: 32px; }
+        .model-label { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding: 12px 16px; background: var(--bg-overlay); border: 1px solid var(--border); }
+        .model-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent-dim); }
+        .model-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+        .model-meta { font-size: 11px; color: var(--text-secondary); margin-left: auto; }
+
+        .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .compare-table th, .compare-table td { padding: 16px 20px; text-align: left; border-bottom: 1px solid var(--border); }
+        .compare-table th { font-size: 11px; color: var(--text-secondary); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; background: var(--bg-overlay); }
+        .compare-table td { color: var(--text-secondary); vertical-align: top; }
+        .compare-table tr:hover td { background: var(--bg-elevated); }
+        .cell-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .cell-badge { font-size: 10px; padding: 3px 10px; letter-spacing: 0.05em; font-weight: 600; }
+        .cell-badge.yes { background: var(--accent-glow); color: var(--accent); border: 1px solid var(--accent-dim); }
+        .cell-badge.no { background: rgba(255, 51, 102, 0.08); color: var(--error); border: 1px solid rgba(255, 51, 102, 0.2); }
+        .cell-time { font-size: 11px; color: var(--text-secondary); margin-left: auto; }
+        .cell-time strong { color: var(--text-primary); font-weight: 600; }
+        .cell-desc { line-height: 1.7; margin-bottom: 10px; }
+        .cell-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--accent); text-decoration: none; letter-spacing: 0.02em; transition: opacity 0.15s linear; }
+        .cell-link:hover { opacity: 0.7; }
+        .cell-link svg { flex-shrink: 0; }
+        .mode-label { font-size: 13px; color: var(--text-primary); font-weight: 600; }
+        .mode-sublabel { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+        .tag-pass { display: inline-block; font-size: 10px; padding: 2px 8px; background: var(--accent-glow); color: var(--accent); margin-top: 8px; letter-spacing: 0.05em; }
+        .tag-warn { display: inline-block; font-size: 10px; padding: 2px 8px; background: rgba(255, 170, 51, 0.08); color: var(--warn); margin-top: 8px; letter-spacing: 0.05em; }
+        .tag-fail { display: inline-block; font-size: 10px; padding: 2px 8px; background: rgba(255, 51, 102, 0.08); color: var(--error); margin-top: 8px; letter-spacing: 0.05em; }
+        .tag-speed { display: inline-block; font-size: 10px; padding: 2px 8px; background: rgba(51, 204, 255, 0.08); color: var(--info); margin-top: 8px; letter-spacing: 0.05em; }
+
+        .compare-summary { margin-top: 32px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .summary-card { background: var(--bg-elevated); border: 1px solid var(--border); padding: 24px; text-align: center; }
+        .summary-value { font-size: 32px; font-weight: 700; line-height: 1; margin-bottom: 8px; }
+        .summary-value.accent { color: var(--accent); }
+        .summary-value.warn { color: var(--warn); }
+        .summary-value.error { color: var(--error); }
+        .summary-value.info { color: var(--info); }
+        .summary-label { font-size: 11px; color: var(--text-secondary); letter-spacing: 0.05em; line-height: 1.5; }
+
+        .proof-conclusion { margin-top: 32px; padding: 28px; background: var(--bg-elevated); border: 1px solid var(--border); border-left: 3px solid var(--accent); }
+        .proof-conclusion h4 { font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--accent); }
+        .proof-conclusion p { font-size: 13px; color: var(--text-secondary); line-height: 1.9; margin-bottom: 12px; }
+        .proof-conclusion p:last-child { margin-bottom: 0; }
+        .proof-conclusion strong { color: var(--text-primary); font-weight: 600; }
+        .proof-conclusion .model-spec { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; padding: 16px; background: var(--bg-overlay); border: 1px solid var(--border); font-size: 12px; }
+        .proof-conclusion .model-spec div { line-height: 1.8; }
+        .proof-conclusion .model-spec strong { display: block; margin-bottom: 4px; color: var(--accent); }
+
+        .proof-apply { margin-top: 32px; }
+        .proof-apply h4 { font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--text-primary); }
+        .apply-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .apply-item { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: var(--bg-elevated); border: 1px solid var(--border); font-size: 13px; color: var(--text-secondary); }
+        .apply-item::before { content: '>'; color: var(--accent); font-weight: 700; }
+
+        /* ===== Footer & Modal ===== */
+        footer { border-top: 1px solid var(--border); padding: 48px 24px; text-align: center; }
+        .footer-prompt { color: var(--accent); font-size: 12px; margin-bottom: 20px; }
+        .footer-copyright { font-size: 12px; color: var(--text-secondary); margin-bottom: 24px; }
+        .footer-copyright a { color: var(--text-primary); text-decoration: underline; transition: color 0.15s; }
+        .footer-copyright a:hover { color: var(--accent); }
+        .footer-actions { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+
+        /* Modal Styles */
+        .preview-modal {
+            position: fixed; inset: 0; z-index: 300;
+            background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+            padding: 24px;
+        }
+        .preview-modal.open { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: var(--bg-elevated); border: 1px solid var(--accent-dim);
+            width: 100%; max-width: 900px; height: 90vh;
+            display: flex; flex-direction: column;
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.1);
+            transform: translateY(20px); transition: transform 0.3s ease;
+        }
+        .preview-modal.open .modal-content { transform: translateY(0); }
+        .modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--bg-overlay);
+        }
+        .modal-title { font-size: 14px; font-weight: 600; color: var(--accent); }
+        .modal-close {
+            background: transparent; border: none; color: var(--text-secondary);
+            padding: 4px; display: flex; align-items: center; transition: color 0.15s;
+        }
+        .modal-close:hover { color: var(--error); }
+        .modal-body {
+            padding: 32px; overflow-y: auto; flex: 1; font-size: 14px; color: var(--text-primary);
+        }
+        .modal-body.loading, .modal-body.error {
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            font-size: 16px; color: var(--text-secondary);
+        }
+
+        /* Markdown 渲染样式 (套用终端暗黑风格) */
+        .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4 {
+            color: var(--accent); margin-top: 1.5em; margin-bottom: 0.8em; font-weight: 700;
+        }
+        .markdown-body h1 { font-size: 24px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+        .markdown-body h2 { font-size: 20px; border-bottom: 1px dashed var(--border); padding-bottom: 8px; }
+        .markdown-body h3 { font-size: 16px; }
+        .markdown-body p { margin-bottom: 1em; color: var(--text-secondary); }
+        .markdown-body ul, .markdown-body ol { margin-left: 1.5em; margin-bottom: 1em; color: var(--text-secondary); }
+        .markdown-body li { margin-bottom: 0.5em; }
+        .markdown-body strong { color: var(--text-primary); font-weight: 600; }
+        .markdown-body code {
+            font-family: inherit; background: var(--bg-overlay); padding: 2px 6px;
+            border-radius: 4px; font-size: 13px; color: var(--warn);
+        }
+        .markdown-body pre {
+            background: var(--bg); border: 1px solid var(--border); padding: 16px;
+            overflow-x: auto; margin-bottom: 1.5em; font-size: 13px; line-height: 1.6;
+        }
+        .markdown-body pre code { background: transparent; padding: 0; color: var(--text-primary); }
+        .markdown-body blockquote {
+            border-left: 3px solid var(--accent); padding-left: 16px;
+            color: var(--text-secondary); margin-bottom: 1em; font-style: italic;
+        }
+        .markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+        .markdown-body a { color: var(--info); text-decoration: none; }
+        .markdown-body a:hover { text-decoration: underline; }
+        .markdown-body table { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
+        .markdown-body th, .markdown-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+        .markdown-body th { background: var(--bg-overlay); color: var(--accent); }
+
+        @media (max-width: 900px) {
+            .list-grid, .style-grid, .apply-grid, .proof-conclusion .model-spec { grid-template-columns: 1fr; }
+            .compare-table thead { display: none; }
+            .compare-table, .compare-table tbody, .compare-table tr, .compare-table td { display: block; width: 100%; }
+            .compare-table tr { margin-bottom: 16px; border: 1px solid var(--border); }
+            .compare-table td { border-bottom: 1px solid var(--border); position: relative; padding-left: 40%; }
+            .compare-table td:last-child { border-bottom: none; }
+            .compare-table td::before { content: attr(data-label); position: absolute; left: 16px; top: 16px; font-size: 11px; color: var(--text-secondary); font-weight: 600; letter-spacing: 0.05em; }
+            .compare-summary { grid-template-columns: repeat(2, 1fr); }
+            .modal-content { height: 95vh; }
+            .modal-body { padding: 16px; }
+        }
+
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 48px; }
+            .hero-sub { font-size: 16px; }
+            .directive-grid { grid-template-columns: 1fr; }
+            .detail-item p { padding-left: 0; margin-top: 12px; }
+            .detail-item-header { flex-wrap: wrap; }
+            .hero-actions, .footer-actions { flex-direction: column; align-items: stretch; }
+            .compare-summary { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+
+    <aside class="toc-drawer" id="tocDrawer">
+        <div class="toc-header">
+            <div class="toc-title" data-i18n="toc.title">目录</div>
+            <button class="close-btn" id="closeTocBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <ul class="toc-list">
+            <li><a href="#directives" class="toc-link" data-toc="directives" data-i18n="nav.directives">核心指令</a></li>
+            <li><a href="#details" class="toc-link" data-toc="details" data-i18n="nav.details">执行规范</a></li>
+            <li><a href="#discipline" class="toc-link" data-toc="discipline" data-i18n="nav.discipline">工程纪律</a></li>
+            <li><a href="#forbidden" class="toc-link" data-toc="forbidden" data-i18n="nav.forbidden">禁止清单</a></li>
+            <li><a href="#styles" class="toc-link" data-toc="styles" data-i18n="nav.styles">风格节选</a></li>
+            <li><a href="#methods" class="toc-link" data-toc="methods" data-i18n="nav.methods">实现方法</a></li>
+            <li><a href="#delivery" class="toc-link" data-toc="delivery" data-i18n="nav.delivery">交付协作</a></li>
+            <li><a href="#proof" class="toc-link" data-toc="proof" data-i18n="nav.proof">效果验证</a></li>
+        </ul>
+    </aside>
+
+    <nav>
+        <div class="nav-inner">
+            <div class="nav-left">
+                <button class="menu-btn" id="menuBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <div class="logo">IRONCLAD</div>
+            </div>
+            <div class="nav-right">
+                <div class="nav-links">
+                    <a href="#directives" class="nav-link" data-i18n="nav.directives">核心指令</a>
+                    <a href="#discipline" class="nav-link" data-i18n="nav.discipline">工程纪律</a>
+                    <a href="#forbidden" class="nav-link" data-i18n="nav.forbidden">禁止清单</a>
+                    <a href="#styles" class="nav-link" data-i18n="nav.styles">风格节选</a>
+                    <a href="#proof" class="nav-link" data-i18n="nav.proof">效果验证</a>
+                </div>
+                <div class="lang-switch">
+                    <button class="lang-btn active" data-lang="zh">中</button>
+                    <button class="lang-btn" data-lang="en">EN</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-badge" data-i18n="hero.badge">SYSTEM v2.0 // OPERATIONAL</div>
+        <h1 data-i18n="hero.title">铁律</h1>
+        <div class="hero-sub" data-i18n="hero.sub">Ironclad</div>
+        <p class="hero-desc allow-select" data-i18n="hero.desc">
+            高精度代码生成的约束与引导系统。不追求“更快”，而追求“更对”——通过强制深度思考、边界预演与反向验证，确保每一行输出都经过审慎推演。
+        </p>
+        <div class="hero-actions">
+            <button class="btn-download" id="previewBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <span data-i18n="hero.btn.preview">在线预览规范</span>
+            </button>
+            <a href="https://harbor-ljmr.upma.site/%E5%85%A8%E6%A0%88%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%BC%96%E7%A8%8B%E8%A7%84%E8%8C%83.md" class="btn-secondary" download>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span data-i18n="hero.btn.download">下载完整规范</span>
+            </a>
+        </div>
+        <div class="hero-meta">
+            <span class="status-ok" data-i18n="hero.meta.status">ONLINE</span>
+            <span data-i18n="hero.meta.count">29 DIRECTIVES</span>
+            <span data-i18n="hero.meta.tolerance">ZERO TOLERANCE</span>
+        </div>
+    </header>
+
+    <section id="directives">
+        <div class="section-header">
+            <h2 data-i18n="sec1.h2">01 // DIRECTIVE SET</h2>
+            <h3 data-i18n="sec1.h3">核心指令矩阵</h3>
+            <p data-i18n="sec1.desc">十条最高优先级思维铁律，覆盖从需求接收到代码交付的全流程。</p>
+        </div>
+        <div class="directive-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                    <div>
+                        <div class="card-title" data-i18n="dir.0.1.title">深度优先于速度</div>
+                        <div class="card-id">DIR-0.1</div>
+                    </div>
+                </div>
+                <div class="card-desc" data-i18n="dir.0.1.desc">禁止为“快点输出”而跳过思考步骤。复杂问题允许多轮内部推演，直到逻辑闭环。唯一KPI是代码质量。</div>
+                <div class="card-tags"><span class="tag core">CORE</span><span class="tag">MINDSET</span></div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+                    <div>
+                        <div class="card-title" data-i18n="dir.0.2.title">禁止思维懒惰</div>
+                        <div class="card-id">DIR-0.2</div>
+                    </div>
+                </div>
+                <div class="card-desc" data-i18n="dir.0.2.desc">第一反应必须是“拆解”而非“开写”。禁止用简单方案替代复杂但正确的方案，禁止回避必要的抽象层。</div>
+                <div class="card-tags"><span class="tag core">CORE</span><span class="tag">DISCIPLINE</span></div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
+                    <div>
+                        <div class="card-title" data-i18n="dir.0.3.title">强制深度思考流程</div>
+                        <div class="card-id">DIR-0.3</div>
+                    </div>
+                </div>
+                <div class="card-desc" data-i18n="dir.0.3.desc">五步强制流程：架构推演→方案对比→边界预演→实现→反向验证。每一步必须产生可见落点。</div>
+                <div class="card-tags"><span class="tag core">CORE</span><span class="tag">PROCESS</span></div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+                    <div>
+                        <div class="card-title" data-i18n="dir.0.4.title">复杂度不回避</div>
+                        <div class="card-id">DIR-0.4</div>
+                    </div>
+                </div>
+                <div class="card-desc" data-i18n="dir.0.4.desc">该用状态机就不用布尔值，该用策略模式就不用if-else堆叠。简洁是删去冗余后的精准，不是逃避思考后的粗糙。</div>
+                <div class="card-tags"><span class="tag">COMPLEXITY</span><span class="tag">ARCHITECTURE</span></div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+                    <div>
+                        <div class="card-title" data-i18n="dir.0.5.title">未知领域先查证</div>
+                        <div class="card-id">DIR-0.5</div>
+                    </div>
+                </div>
+                <div class="card-desc" data-i18n="dir.0.5.desc">禁止凭记忆或猜测处理不熟悉的技术。必须先查阅官方文档或最新资料，查证后才可进入编码阶段。</div>
+                <div class="card-tags"><span class="tag">RESEARCH</span><span class="tag">ACCURACY</span></div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                    <div>
+                        <div class="card-title" data-i18n="dir.0.6.title">专业客观，拒绝迎合</div>
+                        <div class="card-id">DIR-0.6</div>
+                    </div>
+                </div>
+                <div class="card-desc" data-i18n="dir.0.6.desc">技术准确优先于认同用户看法。用户的方案有误时直接指出并给出更优解。不确定就直说不确定。</div>
+                <div class="card-tags"><span class="tag">INTEGRITY</span><span class="tag">ETHICS</span></div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div>
+                        <div class="card-title" data-i18n="dir.0.7.title">完整交付，拒绝半途而废</div>
+                        <div class="card-id">DIR-0.7</div>
+                    </div>
+                </div>
+                <div class="card-desc" data-i18n="dir.0.7.desc">任务必须完整做完。若因信息不足无法完成，明确说明卡点与已完成的边界，而非沉默中断。</div>
+                <div class="card-tags"><span class="tag core">CORE</span><span class="tag">COMPLETION</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="details">
+        <div class="section-header">
+            <h2 data-i18n="sec2.h2">02 // SPECIFICATION</h2>
+            <h3 data-i18n="sec2.h3">执行规范详解</h3>
+            <p data-i18n="sec2.desc">从思维到交付的完整链路，每个环节都有可核对的落点要求。</p>
+        </div>
+        <div class="detail-list">
+            <div class="detail-item">
+                <div class="detail-item-header"><span class="detail-num">A</span><h4 data-i18n="detail.a.title">动手前：六步落点检查</h4></div>
+                <p class="allow-select" data-i18n-html="detail.a.desc">
+                    判定任务类型与技术栈→扫描知识盲区→<span class="highlight">架构落点</span>（模块与数据流）→<span class="highlight">方案落点</span>（≥2条路径与取舍）→<span class="highlight">边界落点</span>（空值/并发/网络/权限）→资源判定（CDN/图片/商用声明）。<br><br>六步全部完成，方可进入编码阶段。
+                </p>
+            </div>
+            <div class="detail-item">
+                <div class="detail-item-header"><span class="detail-num">B</span><h4 data-i18n="detail.b.title">实现中：最小改动 + 强制简化</h4></div>
+                <p class="allow-select" data-i18n-html="detail.b.desc">
+                    只改必要处，不顺手重构。逐条过简化检查清单：DOM层删除空节点、CSS层合并重复值、JS层提取重复函数、依赖层剔除未使用模块。最终代码量应比初稿减少至少<span class="highlight">20%</span>，或确认已达下限。
+                </p>
+            </div>
+            <div class="detail-item">
+                <div class="detail-item-header"><span class="detail-num">C</span><h4 data-i18n="detail.c.title">收尾前：零容忍交互自查</h4></div>
+                <p class="allow-select" data-i18n-html="detail.c.desc">
+                    逐元素确认<span class="highlight">user-select: none</span>；所有&lt;img&gt;满足4条防拖拽规则；点击元素无cursor:text。对照架构落点与边界清单反向验证。逐条过AI味禁止清单。确认任务完整交付，无半成品。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="discipline">
+        <div class="section-header">
+            <h2 data-i18n="sec.discipline.h2">03 // DISCIPLINE</h2>
+            <h3 data-i18n="sec.discipline.h3">反模式与工程纪律</h3>
+            <p data-i18n="sec.discipline.desc">防止“过度工程”与“AI 味”的第一道闸门。只做被明确要求的事，拒绝幻觉式防御。</p>
+        </div>
+        <div class="list-grid">
+            <div class="list-item">
+                <div class="list-title" data-i18n="anti.1.title">最小改动原则</div>
+                <div class="list-desc" data-i18n="anti.1.desc">只做被明确要求、或明显必要的改动。Bug 修复不要顺带重构周边代码；一个简单功能不要额外加可配置性。</div>
+            </div>
+            <div class="list-item">
+                <div class="list-title" data-i18n="anti.2.title">拒绝过度抽象</div>
+                <div class="list-desc" data-i18n="anti.2.desc">不为一次性操作创建 helper/utility。三行相似代码，胜过一次过早的抽象。不为假设的“未来需求”做设计。</div>
+            </div>
+            <div class="list-item">
+                <div class="list-title" data-i18n="anti.3.title">删除优于保留</div>
+                <div class="list-desc" data-i18n="anti.3.desc">未使用的东西彻底删掉。不留“将来可能用得上”的死代码。禁止向后兼容式 hack（如 `_unused` 占位）。</div>
+            </div>
+            <div class="list-item">
+                <div class="list-title" data-i18n="anti.4.title">先读后改，不臆断</div>
+                <div class="list-desc" data-i18n="anti.4.desc">绝不提议修改你还没读过的代码。参数不确定就查清或询问，不填假值。遵循目标项目既有的代码风格。</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="forbidden">
+        <div class="section-header">
+            <h2 data-i18n="sec.forbidden.h2">04 // FORBIDDEN</h2>
+            <h3 data-i18n="sec.forbidden.h3">AI 味禁止清单</h3>
+            <p data-i18n="sec.forbidden.desc">以下绝对禁止，一旦踩中将被视为严重的工程失误。</p>
+        </div>
+        <div class="list-grid">
+            <div class="list-item">
+                <div class="list-title" data-i18n="forbid.1.title">色彩与渐变</div>
+                <div class="list-desc" data-i18n="forbid.1.desc">禁止蓝紫渐变、粉蓝渐变、“科技感”默认渐变。禁止 Tailwind 默认 Indigo/Blue/Purple 品牌色滥用。</div>
+            </div>
+            <div class="list-item">
+                <div class="list-title" data-i18n="forbid.2.title">过度动效</div>
+                <div class="list-desc" data-i18n="forbid.2.desc">禁止浮动上下动画、脉冲光环、过度 hover 放大（>1.05x）。禁止旋转 CSS 圆圈加载器。</div>
+            </div>
+            <div class="list-item">
+                <div class="list-title" data-i18n="forbid.3.title">资源与图标</div>
+                <div class="list-desc" data-i18n="forbid.3.desc">禁止使用 Emoji 作为 UI 图标（必须用 SVG）。禁止 Undraw/Storyset 等 AI 插画占位。禁止假图片 URL。</div>
+            </div>
+            <div class="list-item">
+                <div class="list-title" data-i18n="forbid.4.title">模板化布局</div>
+                <div class="list-desc" data-i18n="forbid.4.desc">禁止三栏等分卡片 + 大图标 + 标题 + 描述的功能特性区模板。禁止在工具/数据类界面硬塞无关图片。</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="styles">
+        <div class="section-header">
+            <h2 data-i18n="sec.styles.h2">05 // STYLE DIRECTIVES</h2>
+            <h3 data-i18n="sec.styles.h3">指令风格清单（节选）</h3>
+            <p data-i18n="sec.styles.desc">该指令集内置 29 种严格的视觉风格约束。以下为部分精选风格，AI 将根据所选风格严格执行规范。</p>
+        </div>
+        <div class="style-grid">
+            <div class="style-card">
+                <div class="style-name" data-i18n-html="style.a.name">A. 安卓 16 Material Design 3 <span>通用</span></div>
+                <div class="style-desc" data-i18n="style.a.desc">大圆角（20-28px），HSL 色彩系统，弹簧曲线，克制水波纹，柔和阴影。适用移动端与通用后台。</div>
+            </div>
+            <div class="style-card">
+                <div class="style-name" data-i18n-html="style.s.name">S. 瑞士／国际主义 <span>理性</span></div>
+                <div class="style-desc" data-i18n="style.s.desc">严格数学网格，Helvetica 无衬线字体，黑白为主加单一强调色。强左对齐，信息密度高，极度克制。</div>
+            </div>
+            <div class="style-card">
+                <div class="style-name" data-i18n-html="style.t.name">T. 赛博朋克／霓虹 <span>科幻</span></div>
+                <div class="style-desc" data-i18n="style.t.desc">深黑基底 + 高饱和霓虹发光，扫描线故障特效，等宽字体，锐利几何。适用黑客文化/Web3。</div>
+            </div>
+            <div class="style-card">
+                <div class="style-name" data-i18n-html="style.ab.name">AB. 技术单声道／代码粗野主义 <span>硬核</span></div>
+                <div class="style-desc" data-i18n="style.ab.desc">等宽字体独占，经典终端黑底绿字或现代暗色，网格外露，打字机效果。适用开发者工具、CLI 前端。</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="methods">
+        <div class="section-header">
+            <h2 data-i18n="sec.methods.h2">06 // IMPLEMENTATION</h2>
+            <h3 data-i18n="sec.methods.h3">指令实现方法</h3>
+            <p data-i18n="sec.methods.desc">如何在实际工作流中让 AI 激活并严格遵循“铁律”的约束。</p>
+        </div>
+        <div class="list-grid">
+            <div class="list-item">
+                <div class="list-title" data-i18n="method.1.title">系统预设法 (System Prompt)</div>
+                <div class="list-desc" data-i18n="method.1.desc">将完整的规范 Markdown 文件作为 AI 的“系统提示词”写入后台或自定义 AI 助手中。使约束成为默认认知。</div>
+            </div>
+            <div class="list-item">
+                <div class="list-title" data-i18n="method.2.title">上下文携带法 (Context Injection)</div>
+                <div class="list-desc" data-i18n="method.2.desc">在每次开启新对话时，将规范文件作为附件上传或前置发送。适用于无法修改系统提示词的公共界面。</div>
+            </div>
+            <div class="list-item">
+                <div class="list-title" data-i18n="method.3.title">强制自检法 (Self-Reflection)</div>
+                <div class="list-desc" data-i18n="method.3.desc">要求 AI 输出代码后，必须逐项对照“零容忍交互自查”清单并打勾，输出验证报告，否则视为未完成。</div>
+            </div>
+            <div class="list-item">
+                <div class="list-title" data-i18n="method.4.title">角色设定法 (Role Prompting)</div>
+                <div class="list-desc" data-i18n="method.4.desc">明确要求 AI 扮演“享誉国际的全栈工程师与系统架构师”，拒绝“AI味”模板化输出，激活最高质量参数分布。</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="delivery">
+        <div class="section-header">
+            <h2 data-i18n="sec.delivery.h2">07 // DELIVERY</h2>
+            <h3 data-i18n="sec.delivery.h3">交付与协作规范</h3>
+            <p data-i18n="sec.delivery.desc">代码交付与工具使用过程中的工程准则（参考 Claude Code 实践）。</p>
+        </div>
+        <div class="list-grid">
+            <div class="list-item">
+                <div class="list-title" data-i18n="delivery.1.title">专用工具优先于 Shell</div>
+                <div class="list-desc" data-i18n="delivery.1.desc">读写文件用专用工具（Read/Edit/Write），而非 cat/sed/awk。Shell 仅保留给真正的系统命令与终端操作。</div>
+            </div>
+            <div class="list-item">
+                <div class="list-title" data-i18n="delivery.2.title">独立并行，依赖串行</div>
+                <div class="list-desc" data-i18n="delivery.2.desc">多个相互独立的操作，在一条消息里并行发起。若后一步依赖前一步的结果，必须串行，不得并行。</div>
+            </div>
+            <div class="list-item">
+                <div class="list-title" data-i18n="delivery.3.title">不生成或猜测 URL</div>
+                <div class="list-desc" data-i18n="delivery.3.desc">除非确信该 URL 是为了帮助用户完成编程任务，否则绝不生成或猜测任何 URL。只使用用户提供的真实 URL。</div>
+            </div>
+            <div class="list-item">
+                <div class="list-title" data-i18n="delivery.4.title">多步任务用清单管理</div>
+                <div class="list-desc" data-i18n="delivery.4.desc">面对多步骤任务，先列出可执行的步骤清单，逐项推进、逐项勾销。一步完成后立即推进下一步，不同时铺开。</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="proof">
+        <div class="section-header">
+            <h2 data-i18n="sec3.h2">08 // PROOF OF WORK</h2>
+            <h3 data-i18n="sec3.h3">效果验证</h3>
+            <p data-i18n="sec3.desc">以下述复杂提示词为基准任务，跨模型实测铁律指令的效果。</p>
+        </div>
+
+        <div class="prompt-preview">
+            <div class="prompt-header">
+                <div class="prompt-dots"><i></i><i></i><i></i></div>
+                <span>TEST PROMPT</span>
+            </div>
+            <div class="prompt-body allow-select" data-i18n-html="prompt.body">
+                <h5>角色与目标</h5>你是一名享誉国际的Creative Technologist。请交付一个独立、完整的单文件HTML程序（内联CSS与JS），主题为“一只鹈鹕在骑自行车”。
+                <h5>艺术风格</h5>采用“复古绘本混搭蒸汽朋克”风格。鹈鹕头戴复古飞行员护目镜，系着随风飘动的丝巾，喉囊呈半透明果冻质感，里面隐约可见一条发光的小金鱼。自行车是精致的英式复古巡洋舰，有金属车架和黄铜车铃。
+                <h5>物理与运动</h5><ul><li>踏板与腿部：使用纯数学函数驱动骨骼，蹼足精确锁死在踏板轨迹上</li><li>次级运动：喉囊基于惯性产生滞后摆动，围巾用正弦波模拟迎风卷动</li></ul>
+                <h5>交互与反馈</h5><ul><li>动态调速：键盘上下键或鼠标滚轮加速/减速，背景视差和粒子联动</li><li>物理颠簸：空格键起跳，落地时有悬挂回弹挤压动效</li><li>声音合成：B键使用Web Audio API实时合成黄铜车铃声</li></ul>
+                <h5>时间段系统（必须支持）</h5><ul><li>五种氛围：上午、中午、下午、傍晚、夜晚全部实现</li><li>丝滑切换：连续时间参数驱动天空、光照、阴影、雾、粒子、日月位置、星星透明度、车灯与小金鱼发光强度；逐帧插值缓动，禁止硬切</li><li>两种驱动：默认自动循环昼夜；提供时间段按钮平滑过渡</li><li>夜晚细节：星星闪烁、月亮光晕、黄铜车灯自动亮起、小金鱼发光增强、萤火虫粒子</li></ul>
+                <h5>移动端适配（必须支持）</h5><ul><li>所有桌面功能在触屏上有等价入口：滑动/虚拟摇杆调速、点击跳跃、专用车铃按钮、时间段切换按钮</li><li>触摸控件有按下反馈，不遮挡主体画面</li><li>首次触摸解锁音频，确保移动端出声</li><li>禁止页面滚动、双击缩放、长按选中，适配刘海屏安全区</li><li>画布随窗口尺寸与方向自适应，竖屏/横屏/超宽屏主体完整不裁切</li><li>粒子数量按设备能力自适应</li></ul>
+                <h5>性能</h5><ul><li>单一主循环，基于时间步长计算，不同刷新率下速度一致</li><li>页面切到后台时暂停渲染与音频，返回时恢复</li><li>无外部网络请求，无控制台报错</li></ul>
+            </div>
+        </div>
+
+        <div class="model-group">
+            <div class="model-label">
+                <span class="model-dot"></span>
+                <span class="model-name" data-i18n="model.deepseek.name">DeepSeek 官方 App</span>
+                <span class="model-meta">DeepSeek-V4.1-Flash</span>
+            </div>
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th data-i18n="table.mode">运行模式</th>
+                        <th data-i18n="table.with">有铁律指令</th>
+                        <th data-i18n="table.without">无指令</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td data-label="运行模式">
+                            <div class="mode-label" data-i18n="mode.deep.on">深度思考 ON</div>
+                            <div class="mode-sublabel" data-i18n="mode.reason">推理链</div>
+                        </td>
+                        <td data-label="有铁律指令">
+                            <div class="cell-header"><span class="cell-badge yes" data-i18n="badge.yes">有指令</span><span class="cell-time"><strong>20</strong> s</span></div>
+                            <div class="cell-desc" data-i18n="res.deep.on.with">鹈鹕运动正常，缺少速度调节功能。</div>
+                            <span class="tag-pass" data-i18n="tag.pass">核心功能可用</span><span class="tag-speed" data-i18n="tag.speed.7.2">快 7.2x</span><br>
+                            <a href="https://chat.deepseek.com/share/avjhfl6micsxxkv1cc" target="_blank" class="cell-link"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span data-i18n="link.view">查看对话</span></a>
+                        </td>
+                        <td data-label="无指令">
+                            <div class="cell-header"><span class="cell-badge no" data-i18n="badge.no">无指令</span><span class="cell-time"><strong>144</strong> s</span></div>
+                            <div class="cell-desc" data-i18n="res.deep.on.without">鹈鹕运动正常，功能完整，移动端部分组件重叠。</div>
+                            <span class="tag-pass" data-i18n="tag.pass">核心功能可用</span><span class="tag-warn" data-i18n="tag.warn.layout">布局缺陷</span><br>
+                            <a href="https://chat.deepseek.com/share/yuqkx8xugt5dqv60rp" target="_blank" class="cell-link"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span data-i18n="link.view">查看对话</span></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-label="运行模式">
+                            <div class="mode-label" data-i18n="mode.deep.off">深度思考 OFF</div>
+                            <div class="mode-sublabel" data-i18n="mode.direct">直出</div>
+                        </td>
+                        <td data-label="有铁律指令">
+                            <div class="cell-header"><span class="cell-badge yes" data-i18n="badge.yes">有指令</span><span class="cell-time">—</span></div>
+                            <div class="cell-desc" data-i18n="res.deep.off.with">功能没法使用，鹈鹕消失，只剩自行车。</div>
+                            <span class="tag-fail" data-i18n="tag.fail.core">核心功能崩溃</span><br>
+                            <a href="https://chat.deepseek.com/share/n0nz5s86wf0tjgx4si" target="_blank" class="cell-link"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span data-i18n="link.view">查看对话</span></a>
+                        </td>
+                        <td data-label="无指令">
+                            <div class="cell-header"><span class="cell-badge no" data-i18n="badge.no">无指令</span><span class="cell-time">—</span></div>
+                            <div class="cell-desc" data-i18n="res.deep.off.without">鹈鹕运动不正常，没有自行车，功能不完善。</div>
+                            <span class="tag-fail" data-i18n="tag.fail.core">核心功能崩溃</span><br>
+                            <a href="https://chat.deepseek.com/share/ebakzp6ro6qupj74me" target="_blank" class="cell-link"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span data-i18n="link.view">查看对话</span></a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="model-group">
+            <div class="model-label">
+                <span class="model-dot" style="background: var(--warn); box-shadow: 0 0 8px rgba(255, 170, 51, 0.3);"></span>
+                <span class="model-name" data-i18n="model.yuanbao.name">元宝官方 App</span>
+                <span class="model-meta">混元3（Hunyuan-3 / Hy3）</span>
+            </div>
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th data-i18n="table.mode">运行模式</th>
+                        <th data-i18n="table.with">有铁律指令</th>
+                        <th data-i18n="table.without">无指令</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td data-label="运行模式">
+                            <div class="mode-label" data-i18n="mode.yb.deep">深度</div>
+                        </td>
+                        <td data-label="有铁律指令">
+                            <div class="cell-header"><span class="cell-badge yes" data-i18n="badge.yes">有指令</span><span class="cell-time">—</span></div>
+                            <div class="cell-desc" data-i18n="res.yb.deep.with">只有纯色背景和控件。</div>
+                            <span class="tag-fail" data-i18n="tag.fail.understand">完全未理解需求</span><br>
+                            <a href="https://yb.tencent.com/s/bgyQkfuNghoN" target="_blank" class="cell-link"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span data-i18n="link.view">查看对话</span></a>
+                        </td>
+                        <td data-label="无指令">
+                            <div class="cell-header"><span class="cell-badge no" data-i18n="badge.no">无指令</span><span class="cell-time">—</span></div>
+                            <div class="cell-desc" data-i18n="res.yb.deep.without">只有纯色背景和控件。</div>
+                            <span class="tag-fail" data-i18n="tag.fail.understand">完全未理解需求</span><br>
+                            <a href="https://yb.tencent.com/s/sOneeYEH7uBp" target="_blank" class="cell-link"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span data-i18n="link.view">查看对话</span></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-label="运行模式">
+                            <div class="mode-label" data-i18n="mode.yb.fast">快速</div>
+                        </td>
+                        <td data-label="有铁律指令">
+                            <div class="cell-header"><span class="cell-badge yes" data-i18n="badge.yes">有指令</span><span class="cell-time">—</span></div>
+                            <div class="cell-desc" data-i18n="res.yb.fast.with">有弹窗故事情节，但后续操作无响应。</div>
+                            <span class="tag-warn" data-i18n="tag.warn.partial">部分渲染</span><span class="tag-fail" data-i18n="tag.fail.interaction">交互失效</span><br>
+                            <a href="https://yb.tencent.com/s/YR4ZC96ABhac" target="_blank" class="cell-link"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span data-i18n="link.view">查看对话</span></a>
+                        </td>
+                        <td data-label="无指令">
+                            <div class="cell-header"><span class="cell-badge no" data-i18n="badge.no">无指令</span><span class="cell-time">—</span></div>
+                            <div class="cell-desc" data-i18n="res.yb.fast.without">鹈鹕与自行车显示但混乱，功能逻辑混乱，背景无太阳。</div>
+                            <span class="tag-warn" data-i18n="tag.warn.visual">视觉混乱</span><span class="tag-fail" data-i18n="tag.fail.logic">逻辑错误</span><br>
+                            <a href="https://yb.tencent.com/s/mZ6eAVH8IKWA" target="_blank" class="cell-link"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span data-i18n="link.view">查看对话</span></a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="compare-summary">
+            <div class="summary-card">
+                <div class="summary-value accent">7.2x</div>
+                <div class="summary-label" data-i18n-html="sum.speed">DeepSeek 深度思考<br>速度提升</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value warn">0%</div>
+                <div class="summary-label" data-i18n-html="sum.yb.deep">混元3 深度模式<br>需求理解率</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value info">50%</div>
+                <div class="summary-label" data-i18n-html="sum.yb.fast">混元3 快速模式<br>部分渲染率</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value error">100%</div>
+                <div class="summary-label" data-i18n-html="sum.crash">无深度思考下<br>双模型崩溃率</div>
+            </div>
+        </div>
+
+        <div class="proof-conclusion">
+            <h4 data-i18n="conclusion.title">模型能力对比 & 跨模型实测结论</h4>
+            <div class="model-spec">
+                <div>
+                    <strong>DeepSeek-V4.1-Flash</strong>
+                    <span data-i18n-html="conclusion.spec.deep">架构：552B MoE（非对称）<br>激活参数：输入 8B / 输出 16B<br>上下文：1M Token<br>编程表现：DeepSWE v1.1 77%<br>特点：原生多模态、强推理、Agent 优化</span>
+                </div>
+                <div>
+                    <strong>混元3（Hunyuan-3 / Hy3）</strong>
+                    <span data-i18n-html="conclusion.spec.yb">架构：295B MoE（快慢融合）<br>激活参数：21B（另 3.8B MTP）<br>上下文：256K Token<br>编程表现：SWE-Bench Verified 78.0<br>特点：Agent 强、成本低、前端/CI-CD 优势</span>
+                </div>
+            </div>
+            <p class="allow-select" data-i18n-html="conclusion.p1"><strong>1. 铁律对强模型效果显著：</strong>DeepSeek-V4.1-Flash 在深度思考模式下，有指令时 <strong>20s</strong> 完成核心功能，无指令则需 <strong>144s</strong> 且仍有布局缺陷。速度提升 <strong>7.2 倍</strong>，输出更干净、更可控。</p>
+            <p class="allow-select" data-i18n-html="conclusion.p2"><strong>2. 铁律对能力不足的模型效果有限：</strong>混元3（Hy3）虽然在 SWE-Bench 上表现不俗（78.0），但在本次“鹈鹕骑自行车”这类<strong>复杂创意前端任务</strong>中，深度模式下完全无法理解需求（纯色背景），快速模式下有指令仅渲染弹窗但交互失效。指令无法突破模型在特定任务上的能力边界。</p>
+            <p class="allow-select" data-i18n-html="conclusion.p3"><strong>3. 深度思考是必要条件：</strong>两个模型在关闭深度思考后，无论有无指令均输出崩溃。铁律是<strong>推理效率的放大器</strong>，但无法替代模型本身的推理深度。</p>
+            <p class="allow-select" data-i18n-html="conclusion.p4"><strong>4. 核心建议：</strong>铁律适用于 <strong>DeepSeek-V4.1-Flash、Claude、GPT-4 等强推理模型</strong>，用于压缩耗时、消除冗余、稳定输出。对能力不足或在此类任务上表现不佳的模型，优先更换模型，而非叠加指令。</p>
+        </div>
+
+        <div class="proof-apply">
+            <h4 data-i18n="apply.title">适用场景</h4>
+            <div class="apply-grid">
+                <div class="allow-select" data-i18n="apply.1">DeepSeek / Claude / GPT-4 等强推理模型的代码生成</div>
+                <div class="allow-select" data-i18n="apply.2">复杂交互组件（动画、物理、音频、可视化）的开发</div>
+                <div class="allow-select" data-i18n="apply.3">需要快速原型验证的独立开发者与创意技术者</div>
+                <div class="allow-select" data-i18n="apply.4">多轮迭代中需保持代码风格一致的生产项目</div>
+                <div class="allow-select" data-i18n="apply.5">对“AI 味”模板化输出零容忍的审美敏感型用户</div>
+                <div class="allow-select" data-i18n="apply.6">有明确技术约束（性能、无障碍、移动端）的交付场景</div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-prompt" data-i18n="footer.prompt">$ 铁律 // Ironclad — 以深度换精确，以约束换自由</div>
+        <div class="footer-copyright">
+            <span data-i18n="footer.copyright">© 指令版权归属：</span>
+            <a href="https://b23.tv/fRgLCff" target="_blank">银色子弹-Silver (Bilibili)</a>
+        </div>
+        <div class="footer-actions">
+            <button class="btn-download" id="footerPreviewBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <span data-i18n="footer.btn.preview">预览完整规范</span>
+            </button>
+            <a href="https://harbor-ljmr.upma.site/%E5%85%A8%E6%A0%88%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%BC%96%E7%A8%8B%E8%A7%84%E8%8C%83.md" class="btn-secondary" download>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span data-i18n="footer.btn.download">下载完整规范(.md)</span>
+            </a>
+            <a href="#" class="btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                <span data-i18n="footer.btn.top">返回顶部</span>
+            </a>
+        </div>
+    </footer>
+
+    <!-- 预览模态框 -->
+    <div class="preview-modal" id="previewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title" data-i18n="modal.title">MARKDOWN PREVIEW // 铁律规范</span>
+                <button class="modal-close" id="closeModalBtn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body markdown-body" id="markdownContainer">
+                <!-- Markdown 内容将注入此处 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== i18n Dictionary =====
+        const i18n = {
+            zh: {
+                "toc.title": "目录",
+                "nav.directives": "核心指令",
+                "nav.details": "执行规范",
+                "nav.discipline": "工程纪律",
+                "nav.forbidden": "禁止清单",
+                "nav.styles": "风格节选",
+                "nav.methods": "实现方法",
+                "nav.delivery": "交付协作",
+                "nav.proof": "效果验证",
+                "hero.badge": "SYSTEM v2.0 // OPERATIONAL",
+                "hero.title": "铁律",
+                "hero.sub": "Ironclad",
+                "hero.desc": "高精度代码生成的约束与引导系统。不追求“更快”，而追求“更对”——通过强制深度思考、边界预演与反向验证，确保每一行输出都经过审慎推演。",
+                "hero.btn.preview": "在线预览规范",
+                "hero.btn.download": "下载完整规范",
+                "hero.btn.browse": "浏览指令",
+                "hero.meta.status": "ONLINE",
+                "hero.meta.count": "29 DIRECTIVES",
+                "hero.meta.tolerance": "ZERO TOLERANCE",
+                "sec1.h2": "01 // DIRECTIVE SET",
+                "sec1.h3": "核心指令矩阵",
+                "sec1.desc": "十条最高优先级思维铁律，覆盖从需求接收到代码交付的全流程。",
+                "dir.0.1.title": "深度优先于速度",
+                "dir.0.1.desc": "禁止为“快点输出”而跳过思考步骤。复杂问题允许多轮内部推演，直到逻辑闭环。唯一KPI是代码质量。",
+                "dir.0.2.title": "禁止思维懒惰",
+                "dir.0.2.desc": "第一反应必须是“拆解”而非“开写”。禁止用简单方案替代复杂但正确的方案，禁止回避必要的抽象层。",
+                "dir.0.3.title": "强制深度思考流程",
+                "dir.0.3.desc": "五步强制流程：架构推演→方案对比→边界预演→实现→反向验证。每一步必须产生可见落点。",
+                "dir.0.4.title": "复杂度不回避",
+                "dir.0.4.desc": "该用状态机就不用布尔值，该用策略模式就不用if-else堆叠。简洁是删去冗余后的精准，不是逃避思考后的粗糙。",
+                "dir.0.5.title": "未知领域先查证",
+                "dir.0.5.desc": "禁止凭记忆或猜测处理不熟悉的技术。必须先查阅官方文档或最新资料，查证后才可进入编码阶段。",
+                "dir.0.6.title": "专业客观，拒绝迎合",
+                "dir.0.6.desc": "技术准确优先于认同用户看法。用户的方案有误时直接指出并给出更优解。不确定就直说不确定。",
+                "dir.0.7.title": "完整交付，拒绝半途而废",
+                "dir.0.7.desc": "任务必须完整做完。若因信息不足无法完成，明确说明卡点与已完成的边界，而非沉默中断。",
+                "dir.4.1.title": "最小改动原则",
+                "dir.4.1.desc": "只做被明确要求或明显必要的改动。Bug修复不要顺带重构；简单功能不要额外加可配置性。",
+                "dir.4.3.title": "删除优于保留",
+                "dir.4.3.desc": "未使用的东西彻底删掉。不留“将来可能用得上”的死代码。冗余层全部清除。",
+                "dir.4.4.title": "先读后改，不臆断",
+                "dir.4.4.desc": "绝不提议修改还没读过的代码。参数不确定就查清或询问，不填假值。遵循既有代码风格。",
+                "sec2.h2": "02 // SPECIFICATION",
+                "sec2.h3": "执行规范详解",
+                "sec2.desc": "从思维到交付的完整链路，每个环节都有可核对的落点要求。",
+                "detail.a.title": "动手前：六步落点检查",
+                "detail.a.desc": "判定任务类型与技术栈→扫描知识盲区→<span class='highlight'>架构落点</span>（模块与数据流）→<span class='highlight'>方案落点</span>（≥2条路径与取舍）→<span class='highlight'>边界落点</span>（空值/并发/网络/权限）→资源判定（CDN/图片/商用声明）。<br><br>六步全部完成，方可进入编码阶段。",
+                "detail.b.title": "实现中：最小改动 + 强制简化",
+                "detail.b.desc": "只改必要处，不顺手重构。逐条过简化检查清单：DOM层删除空节点、CSS层合并重复值、JS层提取重复函数、依赖层剔除未使用模块。最终代码量应比初稿减少至少<span class='highlight'>20%</span>，或确认已达下限。",
+                "detail.c.title": "收尾前：零容忍交互自查",
+                "detail.c.desc": "逐元素确认<span class='highlight'>user-select: none</span>；所有&lt;img&gt;满足4条防拖拽规则；点击元素无cursor:text。对照架构落点与边界清单反向验证。逐条过AI味禁止清单。确认任务完整交付，无半成品。",
+                "sec.discipline.h2": "03 // DISCIPLINE",
+                "sec.discipline.h3": "反模式与工程纪律",
+                "sec.discipline.desc": "防止“过度工程”与“AI 味”的第一道闸门。只做被明确要求的事，拒绝幻觉式防御。",
+                "anti.1.title": "最小改动原则",
+                "anti.1.desc": "只做被明确要求、或明显必要的改动。Bug 修复不要顺带重构周边代码；一个简单功能不要额外加可配置性。",
+                "anti.2.title": "拒绝过度抽象",
+                "anti.2.desc": "不为一次性操作创建 helper/utility。三行相似代码，胜过一次过早的抽象。不为假设的“未来需求”做设计。",
+                "anti.3.title": "删除优于保留",
+                "anti.3.desc": "未使用的东西彻底删掉。不留“将来可能用得上”的死代码。禁止向后兼容式 hack（如 `_unused` 占位）。",
+                "anti.4.title": "先读后改，不臆断",
+                "anti.4.desc": "绝不提议修改你还没读过的代码。参数不确定就查清或询问，不填假值。遵循目标项目既有的代码风格。",
+                "sec.forbidden.h2": "04 // FORBIDDEN",
+                "sec.forbidden.h3": "AI 味禁止清单",
+                "sec.forbidden.desc": "以下绝对禁止，一旦踩中将被视为严重的工程失误。",
+                "forbid.1.title": "色彩与渐变",
+                "forbid.1.desc": "禁止蓝紫渐变、粉蓝渐变、“科技感”默认渐变。禁止 Tailwind 默认 Indigo/Blue/Purple 品牌色滥用。",
+                "forbid.2.title": "过度动效",
+                "forbid.2.desc": "禁止浮动上下动画、脉冲光环、过度 hover 放大（>1.05x）。禁止旋转 CSS 圆圈加载器。",
+                "forbid.3.title": "资源与图标",
+                "forbid.3.desc": "禁止使用 Emoji 作为 UI 图标（必须用 SVG）。禁止 Undraw/Storyset 等 AI 插画占位。禁止假图片 URL。",
+                "forbid.4.title": "模板化布局",
+                "forbid.4.desc": "禁止三栏等分卡片 + 大图标 + 标题 + 描述的功能特性区模板。禁止在工具/数据类界面硬塞无关图片。",
+                "sec.styles.h2": "05 // STYLE DIRECTIVES",
+                "sec.styles.h3": "指令风格清单（节选）",
+                "sec.styles.desc": "该指令集内置 29 种严格的视觉风格约束。以下为部分精选风格，AI 将根据所选风格严格执行规范。",
+                "style.a.name": "A. 安卓 16 Material Design 3 <span>通用</span>",
+                "style.a.desc": "大圆角（20-28px），HSL 色彩系统，弹簧曲线，克制水波纹，柔和阴影。适用移动端与通用后台。",
+                "style.s.name": "S. 瑞士／国际主义 <span>理性</span>",
+                "style.s.desc": "严格数学网格，Helvetica 无衬线字体，黑白为主加单一强调色。强左对齐，信息密度高，极度克制。",
+                "style.t.name": "T. 赛博朋克／霓虹 <span>科幻</span>",
+                "style.t.desc": "深黑基底 + 高饱和霓虹发光，扫描线故障特效，等宽字体，锐利几何。适用黑客文化/Web3。",
+                "style.ab.name": "AB. 技术单声道／代码粗野主义 <span>硬核</span>",
+                "style.ab.desc": "等宽字体独占，经典终端黑底绿字或现代暗色，网格外露，打字机效果。适用开发者工具、CLI 前端。",
+                "sec.methods.h2": "06 // IMPLEMENTATION",
+                "sec.methods.h3": "指令实现方法",
+                "sec.methods.desc": "如何在实际工作流中让 AI 激活并严格遵循“铁律”的约束。",
+                "method.1.title": "系统预设法 (System Prompt)",
+                "method.1.desc": "将完整的规范 Markdown 文件作为 AI 的“系统提示词”写入后台或自定义 AI 助手中。使约束成为默认认知。",
+                "method.2.title": "上下文携带法 (Context Injection)",
+                "method.2.desc": "在每次开启新对话时，将规范文件作为附件上传或前置发送。适用于无法修改系统提示词的公共界面。",
+                "method.3.title": "强制自检法 (Self-Reflection)",
+                "method.3.desc": "要求 AI 输出代码后，必须逐项对照“零容忍交互自查”清单并打勾，输出验证报告，否则视为未完成。",
+                "method.4.title": "角色设定法 (Role Prompting)",
+                "method.4.desc": "明确要求 AI 扮演“享誉国际的全栈工程师与系统架构师”，拒绝“AI味”模板化输出，激活最高质量参数分布。",
+                "sec.delivery.h2": "07 // DELIVERY",
+                "sec.delivery.h3": "交付与协作规范",
+                "sec.delivery.desc": "代码交付与工具使用过程中的工程准则（参考 Claude Code 实践）。",
+                "delivery.1.title": "专用工具优先于 Shell",
+                "delivery.1.desc": "读写文件用专用工具（Read/Edit/Write），而非 cat/sed/awk。Shell 仅保留给真正的系统命令与终端操作。",
+                "delivery.2.title": "独立并行，依赖串行",
+                "delivery.2.desc": "多个相互独立的操作，在一条消息里并行发起。若后一步依赖前一步的结果，必须串行，不得并行。",
+                "delivery.3.title": "不生成或猜测 URL",
+                "delivery.3.desc": "除非确信该 URL 是为了帮助用户完成编程任务，否则绝不生成或猜测任何 URL。只使用用户提供的真实 URL。",
+                "delivery.4.title": "多步任务用清单管理",
+                "delivery.4.desc": "面对多步骤任务，先列出可执行的步骤清单，逐项推进、逐项勾销。一步完成后立即推进下一步，不同时铺开。",
+                "sec3.h2": "08 // PROOF OF WORK",
+                "sec3.h3": "效果验证",
+                "sec3.desc": "以下述复杂提示词为基准任务，跨模型实测铁律指令的效果。",
+                "prompt.body": "<h5>角色与目标</h5>你是一名享誉国际的Creative Technologist。请交付一个独立、完整的单文件HTML程序（内联CSS与JS），主题为“一只鹈鹕在骑自行车”。<h5>艺术风格</h5>采用“复古绘本混搭蒸汽朋克”风格。鹈鹕头戴复古飞行员护目镜，系着随风飘动的丝巾，喉囊呈半透明果冻质感，里面隐约可见一条发光的小金鱼。自行车是精致的英式复古巡洋舰，有金属车架和黄铜车铃。<h5>物理与运动</h5><ul><li>踏板与腿部：使用纯数学函数驱动骨骼，蹼足精确锁死在踏板轨迹上</li><li>次级运动：喉囊基于惯性产生滞后摆动，围巾用正弦波模拟迎风卷动</li></ul><h5>交互与反馈</h5><ul><li>动态调速：键盘上下键或鼠标滚轮加速/减速，背景视差和粒子联动</li><li>物理颠簸：空格键起跳，落地时有悬挂回弹挤压动效</li><li>声音合成：B键使用Web Audio API实时合成黄铜车铃声</li></ul><h5>时间段系统（必须支持）</h5><ul><li>五种氛围：上午、中午、下午、傍晚、夜晚全部实现</li><li>丝滑切换：连续时间参数驱动天空、光照、阴影、雾、粒子、日月位置、星星透明度、车灯与小金鱼发光强度；逐帧插值缓动，禁止硬切</li><li>两种驱动：默认自动循环昼夜；提供时间段按钮平滑过渡</li><li>夜晚细节：星星闪烁、月亮光晕、黄铜车灯自动亮起、小金鱼发光增强、萤火虫粒子</li></ul><h5>移动端适配（必须支持）</h5><ul><li>所有桌面功能在触屏上有等价入口：滑动/虚拟摇杆调速、点击跳跃、专用车铃按钮、时间段切换按钮</li><li>触摸控件有按下反馈，不遮挡主体画面</li><li>首次触摸解锁音频，确保移动端出声</li><li>禁止页面滚动、双击缩放、长按选中，适配刘海屏安全区</li><li>画布随窗口尺寸与方向自适应，竖屏/横屏/超宽屏主体完整不裁切</li><li>粒子数量按设备能力自适应</li></ul><h5>性能</h5><ul><li>单一主循环，基于时间步长计算，不同刷新率下速度一致</li><li>页面切到后台时暂停渲染与音频，返回时恢复</li><li>无外部网络请求，无控制台报错</li></ul>",
+                "model.deepseek.name": "DeepSeek 官方 App",
+                "model.yuanbao.name": "元宝官方 App",
+                "table.mode": "运行模式",
+                "table.with": "有铁律指令",
+                "table.without": "无指令",
+                "mode.deep.on": "深度思考 ON",
+                "mode.reason": "推理链",
+                "mode.deep.off": "深度思考 OFF",
+                "mode.direct": "直出",
+                "mode.yb.deep": "深度",
+                "mode.yb.fast": "快速",
+                "badge.yes": "有指令",
+                "badge.no": "无指令",
+                "res.deep.on.with": "鹈鹕运动正常，缺少速度调节功能。",
+                "res.deep.on.without": "鹈鹕运动正常，功能完整，移动端部分组件重叠。",
+                "res.deep.off.with": "功能没法使用，鹈鹕消失，只剩自行车。",
+                "res.deep.off.without": "鹈鹕运动不正常，没有自行车，功能不完善。",
+                "res.yb.deep.with": "只有纯色背景和控件。",
+                "res.yb.deep.without": "只有纯色背景和控件。",
+                "res.yb.fast.with": "有弹窗故事情节，但后续操作无响应。",
+                "res.yb.fast.without": "鹈鹕与自行车显示但混乱，功能逻辑混乱，背景无太阳。",
+                "tag.pass": "核心功能可用",
+                "tag.warn.layout": "布局缺陷",
+                "tag.fail.core": "核心功能崩溃",
+                "tag.fail.understand": "完全未理解需求",
+                "tag.warn.partial": "部分渲染",
+                "tag.fail.interaction": "交互失效",
+                "tag.warn.visual": "视觉混乱",
+                "tag.fail.logic": "逻辑错误",
+                "tag.speed.7.2": "快 7.2x",
+                "link.view": "查看对话",
+                "sum.speed": "DeepSeek 深度思考<br>速度提升",
+                "sum.yb.deep": "混元3 深度模式<br>需求理解率",
+                "sum.yb.fast": "混元3 快速模式<br>部分渲染率",
+                "sum.crash": "无深度思考下<br>双模型崩溃率",
+                "conclusion.title": "模型能力对比 & 跨模型实测结论",
+                "conclusion.spec.deep": "架构：552B MoE（非对称）<br>激活参数：输入 8B / 输出 16B<br>上下文：1M Token<br>编程表现：DeepSWE v1.1 77%<br>特点：原生多模态、强推理、Agent 优化",
+                "conclusion.spec.yb": "架构：295B MoE（快慢融合）<br>激活参数：21B（另 3.8B MTP）<br>上下文：256K Token<br>编程表现：SWE-Bench Verified 78.0<br>特点：Agent 强、成本低、前端/CI-CD 优势",
+                "conclusion.p1": "<strong>1. 铁律对强模型效果显著：</strong>DeepSeek-V4.1-Flash 在深度思考模式下，有指令时 <strong>20s</strong> 完成核心功能，无指令则需 <strong>144s</strong> 且仍有布局缺陷。速度提升 <strong>7.2 倍</strong>，输出更干净、更可控。",
+                "conclusion.p2": "<strong>2. 铁律对能力不足的模型效果有限：</strong>混元3（Hy3）虽然在 SWE-Bench 上表现不俗（78.0），但在本次“鹈鹕骑自行车”这类<strong>复杂创意前端任务</strong>中，深度模式下完全无法理解需求（纯色背景），快速模式下有指令仅渲染弹窗但交互失效。指令无法突破模型在特定任务上的能力边界。",
+                "conclusion.p3": "<strong>3. 深度思考是必要条件：</strong>两个模型在关闭深度思考后，无论有无指令均输出崩溃。铁律是<strong>推理效率的放大器</strong>，但无法替代模型本身的推理深度。",
+                "conclusion.p4": "<strong>4. 核心建议：</strong>铁律适用于 <strong>DeepSeek-V4.1-Flash、Claude、GPT-4 等强推理模型</strong>，用于压缩耗时、消除冗余、稳定输出。对能力不足或在此类任务上表现不佳的模型，优先更换模型，而非叠加指令。",
+                "apply.title": "适用场景",
+                "apply.1": "DeepSeek / Claude / GPT-4 等强推理模型的代码生成",
+                "apply.2": "复杂交互组件（动画、物理、音频、可视化）的开发",
+                "apply.3": "需要快速原型验证的独立开发者与创意技术者",
+                "apply.4": "多轮迭代中需保持代码风格一致的生产项目",
+                "apply.5": "对“AI 味”模板化输出零容忍的审美敏感型用户",
+                "apply.6": "有明确技术约束（性能、无障碍、移动端）的交付场景",
+                "footer.prompt": "$ 铁律 // Ironclad — 以深度换精确，以约束换自由",
+                "footer.copyright": "© 指令版权归属：",
+                "footer.btn.preview": "预览完整规范",
+                "footer.btn.download": "下载完整规范(.md)",
+                "footer.btn.top": "返回顶部",
+                "modal.title": "MARKDOWN PREVIEW // 铁律规范",
+                "modal.loading": "正在获取并渲染规范文档...",
+                "modal.error": "加载失败，请检查网络或 CORS 限制。"
+            },
+            en: {
+                "toc.title": "Contents",
+                "nav.directives": "Directives",
+                "nav.details": "Specification",
+                "nav.discipline": "Discipline",
+                "nav.forbidden": "Forbidden",
+                "nav.styles": "Styles",
+                "nav.methods": "Methods",
+                "nav.delivery": "Delivery",
+                "nav.proof": "Proof",
+                "hero.badge": "SYSTEM v2.0 // OPERATIONAL",
+                "hero.title": "Ironclad",
+                "hero.sub": "Strict Code Generation",
+                "hero.desc": "A constraint and guidance system for high-precision code generation. It does not pursue 'faster' but 'more correct' — enforcing deep thinking, boundary pre-flighting, and reverse verification to ensure every line of output is carefully reasoned.",
+                "hero.btn.preview": "Preview Rules",
+                "hero.btn.download": "Download Rules",
+                "hero.btn.browse": "Browse Directives",
+                "hero.meta.status": "ONLINE",
+                "hero.meta.count": "29 DIRECTIVES",
+                "hero.meta.tolerance": "ZERO TOLERANCE",
+                "sec1.h2": "01 // DIRECTIVE SET",
+                "sec1.h3": "Core Directive Matrix",
+                "sec1.desc": "Ten highest-priority mental rules, covering the entire flow from requirement reception to code delivery.",
+                "dir.0.1.title": "Depth over Speed",
+                "dir.0.1.desc": "Never skip thinking steps just for 'quick output'. Complex problems require multiple rounds of internal reasoning until the logic closes. The only KPI is code quality.",
+                "dir.0.2.title": "No Mental Laziness",
+                "dir.0.2.desc": "The first reaction must be 'deconstruction', not 'writing'. Do not use simple solutions to replace complex but correct ones, and do not avoid necessary abstraction layers.",
+                "dir.0.3.title": "Enforced Deep Thinking",
+                "dir.0.3.desc": "Five-step mandatory process: Architecture Reasoning → Solution Comparison → Boundary Pre-flight → Implementation → Reverse Verification. Every step must produce a visible checkpoint.",
+                "dir.0.4.title": "Do Not Avoid Complexity",
+                "dir.0.4.desc": "Use state machines instead of booleans, strategy patterns instead of if-else stacking. Conciseness is precision after removing redundancy, not crudeness after avoiding thought.",
+                "dir.0.5.title": "Verify Unknowns First",
+                "dir.0.5.desc": "Never rely on memory or guesswork for unfamiliar technologies. You must check official documentation or the latest resources before entering the coding phase.",
+                "dir.0.6.title": "Objective, No Flattery",
+                "dir.0.6.desc": "Technical accuracy takes precedence over agreeing with the user. Point out errors directly and provide a better solution. If unsure, say you are unsure.",
+                "dir.0.7.title": "Complete Delivery",
+                "dir.0.7.desc": "Tasks must be fully completed. If blocked by insufficient information, explicitly state the blocker and the boundary of what is done, rather than silently stopping.",
+                "dir.4.1.title": "Minimal Changes",
+                "dir.4.1.desc": "Only make changes that are explicitly requested or clearly necessary. Do not refactor while fixing bugs; do not add configurability to simple features.",
+                "dir.4.3.title": "Deletion over Retention",
+                "dir.4.3.desc": "Completely remove unused code. Do not leave dead code that 'might be useful later'. Clear all redundant layers.",
+                "dir.4.4.title": "Read Before Modify",
+                "dir.4.4.desc": "Never propose changes to code you haven't read. If unsure about a parameter, verify or ask; do not fill in fake values. Follow existing code style.",
+                "sec2.h2": "02 // SPECIFICATION",
+                "sec2.h3": "Execution Specification",
+                "sec2.desc": "The complete chain from thought to delivery, with verifiable checkpoint requirements at each stage.",
+                "detail.a.title": "Pre-flight: Six-step Checkpoint",
+                "detail.a.desc": "Determine task type & stack → Scan knowledge blind spots → <span class='highlight'>Architecture Checkpoint</span> (modules & data flow) → <span class='highlight'>Solution Checkpoint</span> (≥2 paths & trade-offs) → <span class='highlight'>Boundary Checkpoint</span> (null/concurrency/network/permissions) → Resource Assessment (CDN/images/commercial).<br><br>Complete all six steps before coding.",
+                "detail.b.title": "Implementation: Minimal Changes + Enforced Simplification",
+                "detail.b.desc": "Change only what is necessary, no side refactoring. Go through the simplification checklist: delete empty DOM nodes, merge CSS duplicates, extract JS functions, remove unused dependencies. Final code volume should decrease by at least <span class='highlight'>20%</span> from the first draft, or confirm the lower bound is reached.",
+                "detail.c.title": "Pre-delivery: Zero Tolerance Interaction Check",
+                "detail.c.desc": "Element-by-element confirm <span class='highlight'>user-select: none</span>; all &lt;img&gt; meet 4 anti-drag rules; clickable elements have no cursor:text. Reverse verify against architecture and boundary checklists. Go through the AI-slop forbidden list. Confirm complete delivery, no half-finished work.",
+                "sec.discipline.h2": "03 // DISCIPLINE",
+                "sec.discipline.h3": "Anti-Patterns & Discipline",
+                "sec.discipline.desc": "The first gate against 'over-engineering' and 'AI-slop'. Do only what is explicitly asked, reject hallucinated defenses.",
+                "anti.1.title": "Minimal Changes",
+                "anti.1.desc": "Only make changes that are explicitly requested or clearly necessary. Do not refactor while fixing bugs; do not add configurability to simple features.",
+                "anti.2.title": "No Over-abstraction",
+                "anti.2.desc": "Do not create helpers/utilities for one-off tasks. Three lines of similar code are better than a premature abstraction. Do not design for assumed 'future needs'.",
+                "anti.3.title": "Deletion over Retention",
+                "anti.3.desc": "Completely remove unused code. Do not leave dead code that 'might be useful later'. No backward-compatible hacks (e.g., `_unused`).",
+                "anti.4.title": "Read Before Modify",
+                "anti.4.desc": "Never propose changes to code you haven't read. If unsure about a parameter, verify or ask; do not fill in fake values. Follow existing project code style.",
+                "sec.forbidden.h2": "04 // FORBIDDEN",
+                "sec.forbidden.h3": "AI-Slop Forbidden List",
+                "sec.forbidden.desc": "The following are strictly prohibited and will be considered severe engineering failures.",
+                "forbid.1.title": "Colors & Gradients",
+                "forbid.1.desc": "No blue-purple/pink-blue 'tech' gradients. No overuse of Tailwind default Indigo/Blue/Purple brand colors.",
+                "forbid.2.title": "Excessive Motion",
+                "forbid.2.desc": "No floating animations, pulsing halos, or excessive hover scaling (>1.05x). No spinning CSS circle loaders.",
+                "forbid.3.title": "Assets & Icons",
+                "forbid.3.desc": "No Emojis as UI icons (must use SVG). No Undraw/Storyset AI placeholder illustrations. No fake image URLs.",
+                "forbid.4.title": "Template Layouts",
+                "forbid.4.desc": "No three-column equal card + big icon + title + description feature templates. No irrelevant images in tool/data UI.",
+                "sec.styles.h2": "05 // STYLE DIRECTIVES",
+                "sec.styles.h3": "Style Directives (Excerpt)",
+                "sec.styles.desc": "The directive set includes 29 strict visual style constraints. Here are some selected styles; the AI will strictly implement rules based on the chosen style.",
+                "style.a.name": "A. Android 16 Material Design 3 <span>General</span>",
+                "style.a.desc": "Large border radius (20-28px), HSL color system, spring curves, restrained ripples, soft shadows. Suitable for mobile & general backend.",
+                "style.s.name": "S. Swiss / International Typographic <span>Rational</span>",
+                "style.s.desc": "Strict mathematical grid, Helvetica sans-serif, black & white with a single accent color. Strong left-aligned, high information density, extremely restrained.",
+                "style.t.name": "T. Cyberpunk / Neon <span>Sci-Fi</span>",
+                "style.t.desc": "Deep black base + high-saturation neon glow, scanline glitch effects, monospace fonts, sharp geometry. Suitable for hacker culture/Web3.",
+                "style.ab.name": "AB. Technical Mono / Code Brutalism <span>Hardcore</span>",
+                "style.ab.desc": "Monospace fonts exclusively, classic terminal black-on-green or modern dark, exposed grid, typewriter effects. Suitable for developer tools, CLI frontends.",
+                "sec.methods.h2": "06 // IMPLEMENTATION",
+                "sec.methods.h3": "Implementation Methods",
+                "sec.methods.desc": "How to activate and strictly enforce the 'Ironclad' constraints in actual workflows.",
+                "method.1.title": "System Prompt",
+                "method.1.desc": "Set the full Markdown specification as the AI's 'System Prompt' in the backend or custom AI assistant. Makes the constraint the AI's default cognition.",
+                "method.2.title": "Context Injection",
+                "method.2.desc": "Upload or prepend the specification file at the start of each new conversation. Suitable for public chat interfaces where system prompts cannot be modified.",
+                "method.3.title": "Self-Reflection Loop",
+                "method.3.desc": "Require the AI to check off each item on the 'Zero Tolerance Interaction Check' list and output a verification report after generating code.",
+                "method.4.title": "Role Prompting",
+                "method.4.desc": "Explicitly require the AI to act as an 'internationally renowned full-stack engineer', reject 'AI-slop' templates, and activate the highest-quality parameter distribution.",
+                "sec.delivery.h2": "07 // DELIVERY",
+                "sec.delivery.h3": "Delivery & Collaboration",
+                "sec.delivery.desc": "Engineering guidelines for code delivery and tool usage (ref: Claude Code practices).",
+                "delivery.1.title": "Dedicated Tools over Shell",
+                "delivery.1.desc": "Use dedicated tools (Read/Edit/Write) for files, not cat/sed/awk. Shell is only for system commands and terminal operations.",
+                "delivery.2.title": "Independent Parallel, Dependent Serial",
+                "delivery.2.desc": "Execute independent operations in parallel within one message. If a step depends on the previous result, it must be serial.",
+                "delivery.3.title": "No URL Generation/Guessing",
+                "delivery.3.desc": "Never generate or guess any URL unless certain it helps the user complete a coding task. Use only user-provided real URLs.",
+                "delivery.4.title": "Checklist for Multi-step Tasks",
+                "delivery.4.desc": "For multi-step tasks, list the executable steps first, advance item by item. Move to the next step immediately after completing one.",
+                "sec3.h2": "08 // PROOF OF WORK",
+                "sec3.h3": "Proof of Work",
+                "sec3.desc": "Using the complex prompt below as the baseline task, testing the effect of Ironclad directives across models.",
+                "prompt.body": "<h5>Role & Goal</h5>You are an internationally renowned Creative Technologist. Deliver a standalone, complete single-file HTML program (inline CSS & JS) themed 'A pelican riding a bicycle'.<h5>Art Style</h5>Adopt a 'Retro Picture Book mixed with Steampunk' style. The pelican wears retro aviator goggles, a wind-blown silk scarf, and has a translucent jelly-like throat pouch with a glowing little goldfish vaguely visible inside. The bicycle is a refined British vintage cruiser with a metal frame and brass bell.<h5>Physics & Motion</h5><ul><li>Pedals & Legs: Drive the skeleton using pure mathematical functions, with webbed feet precisely locked to the pedal trajectory.</li><li>Secondary Motion: The throat pouch lags and swings based on inertia; the scarf is simulated with a sine wave to flutter in the wind.</li></ul><h5>Interaction & Feedback</h5><ul><li>Dynamic Speed: Keyboard Up/Down or mouse wheel to accelerate/decelerate, with linked background parallax and particles.</li><li>Physical Bump: Spacebar to jump, with suspension rebound squash-and-stretch on landing.</li><li>Sound Synthesis: 'B' key uses Web Audio API to synthesize a crisp brass bell in real-time.</li></ul><h5>Time System (Must Support)</h5><ul><li>Five atmospheres: Morning, Noon, Afternoon, Dusk, Night — all implemented.</li><li>Silky Transition: Continuous time parameters drive sky, lighting, shadows, fog, particles, sun/moon position, star transparency, headlight and goldfish glow intensity; frame-by-frame interpolation with easing, no hard cuts.</li><li>Two Drivers: Auto day-night cycle by default; provide time period buttons for smooth transition.</li><li>Night Details: Twinkling stars, moon halo, brass headlight turns on automatically and illuminates the local ground, goldfish glow increases, firefly particles appear.</li></ul><h5>Mobile Adaptation (Must Support)</h5><ul><li>All desktop features have equivalent entry points on touchscreens: swipe/virtual joystick for speed, tap to jump, dedicated bell button, time period switch buttons.</li><li>Touch controls have pressed feedback and do not obscure the main view.</li><li>Audio unlocks on first touch to ensure sound on mobile.</li><li>Disable page scroll, double-tap zoom, long-press selection; adapt to notch safe areas.</li><li>Canvas auto-adapts to window size and orientation; the subject remains intact and uncropped in portrait, landscape, and ultra-wide screens.</li><li>Particle count adapts to device capability.</li></ul><h5>Performance</h5><ul><li>Single main loop, time-step-based calculation, consistent speed across refresh rates.</li><li>Pause rendering and audio when the page goes to the background; resume on return.</li><li>No external network requests, no console errors.</li></ul>",
+                "model.deepseek.name": "DeepSeek App",
+                "model.yuanbao.name": "Yuanbao App",
+                "table.mode": "Mode",
+                "table.with": "With Ironclad",
+                "table.without": "Without Directive",
+                "mode.deep.on": "Deep Thinking ON",
+                "mode.reason": "Reasoning Chain",
+                "mode.deep.off": "Deep Thinking OFF",
+                "mode.direct": "Direct Output",
+                "mode.yb.deep": "Deep",
+                "mode.yb.fast": "Fast",
+                "badge.yes": "With",
+                "badge.no": "Without",
+                "res.deep.on.with": "Pelican moves normally, missing speed control feature.",
+                "res.deep.on.without": "Pelican moves normally, functions complete, mobile components partially overlap.",
+                "res.deep.off.with": "Feature unusable, pelican disappears, only bicycle remains.",
+                "res.deep.off.without": "Pelican moves abnormally, no bicycle, incomplete features.",
+                "res.yb.deep.with": "Only solid background and controls.",
+                "res.yb.deep.without": "Only solid background and controls.",
+                "res.yb.fast.with": "Has popup storyline, but subsequent operations unresponsive.",
+                "res.yb.fast.without": "Pelican and bicycle displayed but chaotic, logic flawed, background missing sun.",
+                "tag.pass": "Core Available",
+                "tag.warn.layout": "Layout Flaw",
+                "tag.fail.core": "Core Crashed",
+                "tag.fail.understand": "Failed to Understand",
+                "tag.warn.partial": "Partial Render",
+                "tag.fail.interaction": "Interaction Failed",
+                "tag.warn.visual": "Visual Chaos",
+                "tag.fail.logic": "Logic Error",
+                "tag.speed.7.2": "7.2x Faster",
+                "link.view": "View Chat",
+                "sum.speed": "DeepSeek Deep Thinking<br>Speed Boost",
+                "sum.yb.deep": "Hunyuan3 Deep Mode<br>Comprehension Rate",
+                "sum.yb.fast": "Hunyuan3 Fast Mode<br>Partial Render Rate",
+                "sum.crash": "Without Deep Thinking<br>Dual Model Crash Rate",
+                "conclusion.title": "Model Comparison & Cross-Model Conclusion",
+                "conclusion.spec.deep": "Architecture: 552B MoE (Asymmetric)<br>Activated Params: 8B in / 16B out<br>Context: 1M Token<br>Coding: DeepSWE v1.1 77%<br>Features: Native multimodal, strong reasoning, Agent optimized",
+                "conclusion.spec.yb": "Architecture: 295B MoE (Fast/Slow thinking)<br>Activated Params: 21B (plus 3.8B MTP)<br>Context: 256K Token<br>Coding: SWE-Bench Verified 78.0<br>Features: Strong Agent, low cost, frontend/CI-CD advantage",
+                "conclusion.p1": "<strong>1. Ironclad is highly effective on strong models:</strong> DeepSeek-V4.1-Flash completes the core function in <strong>20s</strong> with directives vs <strong>144s</strong> without, while still having layout flaws. A <strong>7.2x speed boost</strong>, with cleaner, more controllable output.",
+                "conclusion.p2": "<strong>2. Ironclad has limited effect on weaker models:</strong> Although Hunyuan-3 performs well on SWE-Bench (78.0), on complex creative frontend tasks like this 'pelican riding a bicycle', it completely fails to understand the requirement in Deep mode (solid background), and in Fast mode only renders a popup but interactions fail. Directives cannot break the model's capability boundaries on specific tasks.",
+                "conclusion.p3": "<strong>3. Deep Thinking is a prerequisite:</strong> Both models output crashes when Deep Thinking is disabled, regardless of directives. Ironclad is a <strong>reasoning efficiency amplifier</strong>, but cannot replace the model's own reasoning depth.",
+                "conclusion.p4": "<strong>4. Core Recommendation:</strong> Ironclad is suitable for <strong>strong reasoning models like DeepSeek-V4.1-Flash, Claude, and GPT-4</strong> to compress time, remove redundancy, and stabilize output. For models with insufficient capability, prioritize switching models rather than stacking directives.",
+                "apply.title": "Applicable Scenarios",
+                "apply.1": "Code generation with strong reasoning models like DeepSeek / Claude / GPT-4",
+                "apply.2": "Development of complex interactive components (animation, physics, audio, visualization)",
+                "apply.3": "Independent developers and creative technologists needing rapid prototyping",
+                "apply.4": "Production projects requiring consistent code style across multiple iterations",
+                "apply.5": "Aesthetically sensitive users with zero tolerance for 'AI-slop' template outputs",
+                "apply.6": "Delivery scenarios with strict technical constraints (performance, a11y, mobile)",
+                "footer.prompt": "$ Ironclad — Trade depth for precision, constraints for freedom",
+                "footer.copyright": "© Directive copyright belongs to:",
+                "footer.btn.preview": "Preview Rules",
+                "footer.btn.download": "Download Rules (.md)",
+                "footer.btn.top": "Back to Top",
+                "modal.title": "MARKDOWN PREVIEW // Ironclad",
+                "modal.loading": "Fetching and rendering specification...",
+                "modal.error": "Failed to load. Check network or CORS restrictions."
+            }
+        };
+
+        // ===== TOC Observer (Scroll Spy) =====
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    document.querySelectorAll('.toc-link').forEach(link => {
+                        link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+                    });
+                }
+            });
+        }, { rootMargin: '-20% 0px -60% 0px' });
+
+        document.querySelectorAll('section[id]').forEach(sec => observer.observe(sec));
+
+        // ===== Drawer Logic =====
+        const menuBtn = document.getElementById('menuBtn');
+        const closeTocBtn = document.getElementById('closeTocBtn');
+        const tocDrawer = document.getElementById('tocDrawer');
+        const drawerOverlay = document.getElementById('drawerOverlay');
+
+        function openDrawer() {
+            tocDrawer.classList.add('open');
+            drawerOverlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDrawer() {
+            tocDrawer.classList.remove('open');
+            drawerOverlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        menuBtn.addEventListener('click', openDrawer);
+        closeTocBtn.addEventListener('click', closeDrawer);
+        drawerOverlay.addEventListener('click', closeDrawer);
+
+        document.querySelectorAll('.toc-link').forEach(link => {
+            link.addEventListener('click', closeDrawer);
+        });
+
+        // ===== i18n Core Logic =====
+        function setLanguage(lang) {
+            document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+            
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (i18n[lang] && i18n[lang][key]) {
+                    el.textContent = i18n[lang][key];
+                }
+            });
+
+            document.querySelectorAll('[data-i18n-html]').forEach(el => {
+                const key = el.dataset.i18nHtml;
+                if (i18n[lang] && i18n[lang][key]) {
+                    el.innerHTML = i18n[lang][key];
+                }
+            });
+
+            localStorage.setItem('ironclad-lang', lang);
+        }
+
+        // ===== Preview Modal Logic =====
+        const previewModal = document.getElementById('previewModal');
+        const previewBtn = document.getElementById('previewBtn');
+        const footerPreviewBtn = document.getElementById('footerPreviewBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const markdownContainer = document.getElementById('markdownContainer');
+        
+        // 目标 Markdown 文件地址
+        const MD_URL = "https://harbor-ljmr.upma.site/%E5%85%A8%E6%A0%88%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%BC%96%E7%A8%8B%E8%A7%84%E8%8C%83.md";
+        let isMdLoaded = false;
+
+        function openModal() {
+            previewModal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+
+            if (isMdLoaded) return; // 已加载则直接显示
+
+            const currentLang = localStorage.getItem('ironclad-lang') || 'zh';
+            markdownContainer.classList.add('loading');
+            markdownContainer.innerHTML = `<div>${i18n[currentLang]["modal.loading"]}</div>`;
+
+            // 使用 Fetch 获取 Markdown 内容
+            fetch(MD_URL)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.arrayBuffer(); // 先转 ArrayBuffer 解决潜在编码问题
+                })
+                .then(buffer => {
+                    // 强制使用 UTF-8 解码，修复可能的乱码
+                    const decoder = new TextDecoder('utf-8');
+                    const markdownText = decoder.decode(buffer);
+                    
+                    // 使用 marked.js 渲染
+                    const htmlContent = marked.parse(markdownText);
+                    
+                    markdownContainer.classList.remove('loading');
+                    markdownContainer.innerHTML = htmlContent;
+                    isMdLoaded = true;
+                })
+                .catch(error => {
+                    console.error('Failed to fetch markdown:', error);
+                    markdownContainer.classList.remove('loading');
+                    markdownContainer.classList.add('error');
+                    const currentLang = localStorage.getItem('ironclad-lang') || 'zh';
+                    markdownContainer.innerHTML = `<div>${i18n[currentLang]["modal.error"]}</div>`;
+                });
+        }
+
+        function closeModal() {
+            previewModal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        previewBtn.addEventListener('click', openModal);
+        footerPreviewBtn.addEventListener('click', openModal);
+        closeModalBtn.addEventListener('click', closeModal);
+        
+        // 点击模态框背景关闭
+        previewModal.addEventListener('click', (e) => {
+            if (e.target === previewModal) closeModal();
+        });
+
+        // ===== Init =====
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
+            });
+
+            const savedLang = localStorage.getItem('ironclad-lang') || 'zh';
+            setLanguage(savedLang);
+        });
+    </script>
+    <script>
+(function () {
+  function removeAds() {
+    document.querySelectorAll('[data-shangma-branding], [data-shangma-report-modal], .upma-micro-widget')
+      .forEach(function (el) { el.remove(); });
+  }
+  removeAds();
+  if (window.MutationObserver) {
+    new MutationObserver(removeAds).observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+  }
+})();
+</script>
+</body>
+</html>

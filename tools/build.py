@@ -11,11 +11,16 @@ import datetime
 import json
 import sys
 from pathlib import Path
+from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
 TPL = ROOT / "template" / "README.tpl.md"
 OUT = ROOT / "README.md"
+PROMPTS = ROOT / "prompts"
+PROMPT_EXTS = {".md", ".txt", ".html"}
+# 分类展示顺序，按原包的组织顺序；未列出的排在后面
+PROMPT_ORDER = ["编程开发", "翻译语言", "工具实用", "角色风格", "生成创作", "游戏棋类"]
 
 STALE_DAYS = 180
 
@@ -160,6 +165,59 @@ def _strip_block(rows: list[dict]) -> str:
     return "\n\n".join(parts)
 
 
+def scan_prompts() -> list[tuple[str, list[Path]]]:
+    """扫 prompts/ 下的分类目录，返回 [(分类名, [文件...]), ...]。"""
+    groups: list[tuple[str, list[Path]]] = []
+    if not PROMPTS.is_dir():
+        return groups
+    order = {name: i for i, name in enumerate(PROMPT_ORDER)}
+    dirs = [p for p in PROMPTS.iterdir() if p.is_dir() and not p.name.startswith(".")]
+    dirs.sort(key=lambda p: (order.get(p.name, len(PROMPT_ORDER)), p.name))
+    for d in dirs:
+        files = sorted(f for f in d.iterdir() if f.is_file() and f.suffix.lower() in PROMPT_EXTS)
+        if files:
+            groups.append((d.name, files))
+    return groups
+
+
+def render_prompt_summary(groups: list[tuple[str, list[Path]]]) -> str:
+    if not groups:
+        return "_待收录。_"
+    total = sum(len(f) for _, f in groups)
+    lines = [
+        f"{total} 条，分 {len(groups)} 类。都是完整指令，复制即用，不用再改。",
+        "",
+        "| 分类 | 条数 | 代表 |",
+        "| :-- | :--: | :-- |",
+    ]
+    for name, files in groups:
+        sample = "、".join(f.stem for f in files[:3])
+        more = " 等" if len(files) > 3 else ""
+        lines.append(f"| {name} | {len(files)} | {sample}{more} |")
+    lines += ["", "完整索引见 [`prompts/`](prompts/README.md)，一条一个文件。"]
+    return "\n".join(lines)
+
+
+def render_prompt_index(groups: list[tuple[str, list[Path]]]) -> str:
+    total = sum(len(f) for _, f in groups)
+    out = [
+        "# AI 指令集",
+        "",
+        f"共 **{total}** 条，分 {len(groups)} 类。每条都是完整可用的指令文本，复制到任意模型里即可，不需要改参数。",
+        "",
+        "| 分类 | 条数 |",
+        "| :-- | :--: |",
+    ]
+    for name, files in groups:
+        out.append(f"| {name} | {len(files)} |")
+    for name, files in groups:
+        out += ["", f"## {name}", "", "| 指令 | 文件 |", "| :-- | :-- |"]
+        for f in files:
+            rel = f.relative_to(PROMPTS).as_posix()
+            out.append(f"| {f.stem} | [{f.suffix[1:]}]({quote(rel)}) |")
+    return "\n".join(out) + "\n"
+
+
 def build_top(rows_by_cat: dict[str, list[dict]]) -> str:
     """夯级速览：按分类列出 rating=夯 的条目。"""
     parts = []
@@ -243,12 +301,18 @@ def main() -> int:
         text = text.replace(f"{{{{{key.upper()}_TABLE}}}}", tables[key])
         text = text.replace(f"{{{{{key.upper()}_DESC}}}}", desc)
         text = text.replace(f"{{{{{key.upper()}_COUNT}}}}", str(counts[key]))
+    prompt_groups = scan_prompts()
+    prompt_total = sum(len(f) for _, f in prompt_groups)
     text = text.replace("{{TOP}}", build_top(rows_by_cat))
+    text = text.replace("{{PROMPT_SUMMARY}}", render_prompt_summary(prompt_groups))
+    text = text.replace("{{PROMPT_TOTAL}}", str(prompt_total))
     text = text.replace("{{TOTAL}}", str(sum(counts.values()))).replace("{{UPDATED}}", today)
     OUT.write_text(text, encoding="utf-8")
+    if prompt_groups:
+        (PROMPTS / "README.md").write_text(render_prompt_index(prompt_groups), encoding="utf-8")
 
     summary = " · ".join(f"{name} {counts[key]}" for key, name, _ in CATS)
-    print(f"README.md 已生成：{summary} · 共 {sum(counts.values())} 条")
+    print(f"README.md 已生成：{summary} · 共 {sum(counts.values())} 条 · 指令 {prompt_total} 条")
     return 0
 
 
