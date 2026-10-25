@@ -31,7 +31,7 @@
 
 **AI** [Agnes AI](https://apihub.agnes-ai.com/v1)
 
-**服务器** [Cloudflare Pages](https://pages.cloudflare.com) · [InfinityFree](https://infinityfree.com) · [Kimi CDN](https://kimi.moonshot.cn)
+**服务器** [Cloudflare Pages](https://pages.cloudflare.com) · [InfinityFree](https://infinityfree.com)
 
 **API** [edge.text-to-speech.cn](https://edge.text-to-speech.cn) · [zm.wwoyun.cn](https://zm.wwoyun.cn) · [Injahow Meting](https://api.injahow.cn/meting/) · [Open-Meteo](https://api.open-meteo.com/v1/forecast)
 
@@ -107,8 +107,8 @@
 | 评级 | 名称 | 白嫖什么 | 门槛 | 坑 / 限制 | 最后确认 |
 | :--: | :-- | :-- | :-- | :-- | :-- |
 | **夯** | [Cloudflare Pages](https://pages.cloudflare.com) | 500 次构建/月、单站点 2 万文件、单文件 25MiB、100 个项目、静态请求不限带宽、预览部署无限、自定义域名 100 个 | 邮箱 | 单文件必须 ≤25MiB，更大要走 R2；新账号头两天限制新建项目；Functions 请求计入 Workers 配额；构建 20 分钟超时 | 2026-10-25 |
-| **夯** | [Kimi CDN](https://kimi.moonshot.cn) | 在 Kimi 手机 App 里发布一个单文件 HTML，产物直接落在 Kimi 自用的 CDN 上（kimi-file.moonshot.cn），拿到一个公开可访问的地址：不买域名、不搭服务器、不备案，全屏渲染，可直接外发 | 实名 | 持久性反而是它最强的点：社区里大量早期作品至今能打开，有人删了号链接照样活着；但官方没给 SLA，重要内容自己留副本。取链接要靠页面自己打印——社区不给分享按钮、地址栏只显示网页标题，必须在页面里写 document.getElementById('pageUrl').textContent = window.location.href；只有手机 App 能发布，网页版和电脑端没有这个按钮；提示词必须写死「直接在 markdown 代码块输出、不要调 Python 工具、不要用 widget」，否则产出的不是能发布的全屏 HTML；链接 100 多字符且带 kimi-file.moonshot.cn，对外发建议过一道短链；发的是作品不是站点，改了要重新发布、换新链接 | 2026-10-25 |
 | **顶级** | [GitHub Pages](https://pages.github.com) | 站点 1GB、软带宽 100GB/月、软构建 10 次/小时（改用 Actions 部署不受此限）、自定义域名 + 自动 HTTPS | GitHub | 免费账号只能公开仓库；官方明令禁止当免费主机跑商业站/电商/SaaS；国内访问慢且丢包；超限返回 429；站点与源仓库各 1GB | 2026-10-25 |
+| **顶级** | [Kimi CDN](https://kimi.moonshot.cn) | 在 Kimi 手机 App 里发布一个单文件 HTML，产物直接落在 Kimi 自用的 CDN 上（kimi-file.moonshot.cn），拿到一个公开可访问的地址：不买域名、不搭服务器、不备案，全屏渲染，可直接外发 | 实名 | 它持久的原因不是承诺，是官方还没意识到有人在拿社区作品当 CDN 占存储、暂时没人治理——这是漏洞窗口，不是服务条款；哪天开始清理存量，老链接可能成批失效，重要内容自己留副本。取链接要靠页面自己打印：社区不给分享按钮、地址栏只显示网页标题，必须在页面里写 document.getElementById('pageUrl').textContent = window.location.href；只有手机 App 能发布，网页版和电脑端没有这个按钮；提示词必须写死「直接在 markdown 代码块输出、不要调 Python 工具、不要用 widget」，否则产出的不是能发布的全屏 HTML；链接 100 多字符且带 kimi-file.moonshot.cn，对外发建议过一道短链；发的是作品不是站点，改了要重新发布、换新链接 | 2026-10-25 |
 | **人上人** | [上码 Upma](https://www.upma.cn) | 2 个项目、1GB 流量/月、单次上传 10MB、总存储 100MB、自定义域名 + 自动 SSL、香港 CN2 免备案 | 实名 | 免费版页面底部挂「托管于上码」标识；超额 402 或暂停到下月；*.upma.site 子域归平台所有、闲置可收回；只托管静态文件；官网自标国内丢包 25% | 2026-10-25 |
 | **人上人** | [ship.page](https://ship.page) | 匿名上传 HTML（10MB）/ ZIP（25MB、100 文件）/ 文件夹，秒出链接；纯 REST API 一次 POST 即部署；匿名 30 天、注册免费账号 90 天 | 免注册 | 单文件 10MB；不能绑自定义域名、不能原地更新（Pro 才有）；链接 47 位熵、无密码保护；10 次部署/分钟/IP；域名会变，实测 *.ship.place；过期后 30 天内可 restore；Pro $4/月（永久 + 密码保护 + 120 次/分） | 2026-10-25 |
 
@@ -133,9 +133,9 @@
 | :-- | :--: | :--: | :-- | :--: | :-- | :-- |
 | Cloudflare Pages | 5 | 4 | 邮箱 | 5 | 无 | 单文件 25MiB 上限；新账号 48 小时内限建项目 |
 | InfinityFree | 2 | 2 | 邮箱 | 3 | 无 | 反爬二次导航拖首屏、PHP 10 秒、无 cron、每日 5 万 hits |
-| Kimi CDN | 4 | 5 | 实名 | 3 | 无 | 真实链接要自己打印出来、超长、改了得重新发布 |
 | GitHub Pages | 3 | 4 | GitHub | 4 | 无 | 必须公开仓库、不许商用、国内慢且丢包 |
 | 豆包工作模式建站 | 3 | 4 | 实名 | 4 | 无 | 接口默认裸奔、无鉴权、稳定性未知 |
+| Kimi CDN | 4 | 5 | 实名 | 3 | 无 | 真实链接要自己打印出来、超长、改了得重新发布 |
 | 上码 Upma | 5 | 5 | 实名 | 2 | 页脚「托管于上码」标识 + 右下角悬浮微件 | 额度只够小 Demo；子域归平台所有、闲置可收回 |
 | ship.page | 3 | 5 | 免注册 | 3 | 有徽章（客户端注入，非必现） | 单文件 10MB；不能绑域名、不能原地更新；30 天到期 |
 | ByetHost | 2 | 1 | 邮箱 | 3 | 无 | VistaPanel 繁琐、凭据只显示一次、一账号一站 |
