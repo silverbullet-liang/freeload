@@ -155,12 +155,12 @@
     "checked": "2026-10-25"
   },
   {
-    "name": "Kimi 社区发布",
+    "name": "Kimi CDN",
     "url": "https://kimi.moonshot.cn",
-    "what": "在 Kimi 手机 App 里让它写一个单文件 HTML，点「发布」勾选 AI 回复，作品就落到 kimi-file.moonshot.cn 的公开地址上，全屏渲染、可直接发给别人；免费、不用买域名、不用搭服务器",
+    "what": "在 Kimi 手机 App 里发布一个单文件 HTML，产物直接落在 Kimi 自用的 CDN 上（kimi-file.moonshot.cn），拿到一个公开可访问的地址：不买域名、不搭服务器、不备案，全屏渲染，可直接外发",
     "gate": "实名",
     "group": "静态部署",
-    "rating": "顶级",
+    "rating": "夯",
     "score": {
       "speed": 4,
       "quick": 5,
@@ -168,7 +168,7 @@
     },
     "ads": "无",
     "flaws": "真实链接要自己打印出来、超长、改了得重新发布",
-    "gotcha": "只有手机 App 能发布，网页版和电脑端没有这个按钮；社区刻意不给分享按钮、地址栏也不显示真实地址，必须在页面里用 document.getElementById('pageUrl').textContent = window.location.href 把链接打到页面上，否则永远拿不到；生成的链接 100 多字符且带 kimi-file.moonshot.cn，发出去一眼看穿，建议过一道短链；提示词必须写明「直接在 markdown 代码块输出、不要调 Python 工具、不要用 widget」，否则产出不是能发布的全屏 HTML；发的是「作品」不是「站点」，改了要重新发布、新链接，旧链接不会跟着更新；官方没承诺过期时间，别当永久托管",
+    "gotcha": "持久性反而是它最强的点：社区里大量早期作品至今能打开，有人删了号链接照样活着；但官方没给 SLA，重要内容自己留副本。取链接要靠页面自己打印——社区不给分享按钮、地址栏只显示网页标题，必须在页面里写 document.getElementById('pageUrl').textContent = window.location.href；只有手机 App 能发布，网页版和电脑端没有这个按钮；提示词必须写死「直接在 markdown 代码块输出、不要调 Python 工具、不要用 widget」，否则产出的不是能发布的全屏 HTML；链接 100 多字符且带 kimi-file.moonshot.cn，对外发建议过一道短链；发的是作品不是站点，改了要重新发布、换新链接",
     "checked": "2026-10-25"
   }
 ]
