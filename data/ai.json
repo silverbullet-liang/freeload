@@ -6,7 +6,8 @@
     "gate": "邮箱",
     "rating": "夯",
     "gotcha": "RPM 有「允许发起 30 / 实际执行 20」两套数，按实际算；视频一次生成耗 3–5 次请求，高峰排队；高峰期 1M 上下文压到 512K；官方保留随时调整免费政策；超额只限速不封号；Key 仅创建时完整显示一次；国内另有 apihub.agnes-ai.cn/v1",
-    "checked": "2026-10-25"
+    "checked": "2026-10-25",
+    "probe": "https://apihub.agnes-ai.com/v1/models"
   },
   {
     "name": "FreeTheAI",
@@ -15,7 +16,8 @@
     "gate": "邮箱",
     "rating": "顶级",
     "gotcha": "旧域名 api.freetheai.xyz 与 Discord 的 /signup、/checkin 已全部作废；现在每天必须在 freetheai.org 签到（UTC 零点清零），断签额度即停；日上限官方不公布（原文「limits remain server-owned」，第三方称约 50 次/天）；只收 Gmail / Outlook 这类主流邮箱，临时邮箱被拒；付费走加密货币钱包",
-    "checked": "2026-10-25"
+    "checked": "2026-10-25",
+    "probe": "https://api.freetheai.org/v1/models"
   },
   {
     "name": "OpenRouter",
@@ -33,7 +35,8 @@
     "gate": "邮箱",
     "rating": "人上人",
     "gotcha": "匿名只能开网页（6000 token/天），调 API 必须 sk-free- 开头的 key；视频 1 条/2 天，且一条吃掉当天全部 30000 token；免费池只覆盖自托管开源模型，GPT-6 / Claude / Gemini / Veo 从付费余额扣；解除视频限制最低 $5/月；官方文档「先买 token 再生成 key」与免费档说明并存，以页面为准",
-    "checked": "2026-10-25"
+    "checked": "2026-10-25",
+    "probe": "https://api.free.ai/v1/models"
   },
   {
     "name": "Pollinations",

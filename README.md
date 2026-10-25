@@ -2,13 +2,15 @@
 
 # 白嫖清单
 
-**30 个能白嫖的服务，30 条天天在用的 AI 指令，2 个能直接装的技能。**
+**29 个能白嫖的服务，30 条天天在用的 AI 指令，2 个能直接装的技能。**
 一个帮你省钱，一个帮你省事，一个帮你省时间。
 服务是我亲手打的，指令是我亲手写的，技能是我自己在跑的——打不通、不好用的，直接删，不留墓碑。
 
-> **Free tier, but actually verified.** 30 free services (AI / cloud storage / hosting / public APIs), 30 prompts and 2 skills. Every entry is tested by hand; dead links get deleted instead of kept as filler.
+> **Free tier, but actually verified.** 29 free services (AI / cloud storage / hosting / public APIs), 30 prompts and 2 skills. Every entry is tested by hand; dead links get deleted instead of kept as filler.
 
-![services](https://img.shields.io/badge/services-30-3ddc97) ![prompts](https://img.shields.io/badge/prompts-30-3ddc97) ![skills](https://img.shields.io/badge/skills-2-3ddc97) ![license](https://img.shields.io/badge/license-MIT-111827)
+![services](https://img.shields.io/badge/services-29-3ddc97) ![prompts](https://img.shields.io/badge/prompts-30-3ddc97) ![skills](https://img.shields.io/badge/skills-2-3ddc97) ![license](https://img.shields.io/badge/license-MIT-111827) [![link-check](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml/badge.svg)](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml)
+
+English overview: [README.en.md](README.en.md)
 
 > 最后核对于 2026-10-25，每条都带自己的核对日期。
 
@@ -79,7 +81,7 @@
 - [AI](#ai) —— 5 条
 - [网盘](#%E7%BD%91%E7%9B%98) —— 2 条
 - [服务器](#%E6%9C%8D%E5%8A%A1%E5%99%A8) —— 10 条
-- [API](#api) —— 13 条
+- [API](#api) —— 12 条
 - [AI 指令](#ai-%E6%8C%87%E4%BB%A4) —— 30 条
 - [AI Skills](#ai-skills) —— 2 个
 
@@ -211,7 +213,6 @@
 | 评级 | 名称 | 白嫖什么 | 门槛 | 坑 / 限制 | 最后确认 |
 | :--: | :-- | :-- | :-- | :-- | :-- |
 | **顶级** | [米人 API](https://api.mir6.com/api/bzjiexi) | 免费 B 站解析，GET ?url=<BV 链接> 返回标题、封面、简介与 data 数组（含直链），开放 CORS | 免注册 | 仅普通 BV 视频，番剧/电影/电视剧不支持；返回的是 DASH 分离流，视频音频要自己 ffmpeg 合流；第三方站点随时限流，别当前端唯一依赖 | 2026-10-25 |
-| **人上人** | [呆错 API](https://api.daicuo.cc/parse/) | 多平台点播解析（B 站、腾讯、爱奇艺、优酷、A 站），返回播放器嵌入地址或直链 | 邮箱 | 必须登录拿 token；返回可能是播放器嵌入地址而不是直链；本次未实测（需注册），用前自测 | 2026-10-25 |
 
 ### 音乐
 

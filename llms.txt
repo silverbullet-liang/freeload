@@ -1,0 +1,32 @@
+# Freeload
+
+> Verified free tiers: 29 services (AI / cloud storage / hosting / public APIs), 30 prompts, 2 installable skills. Every entry was tested by hand; dead links are deleted, not tombstoned. A weekly GitHub Action re-probes every endpoint.
+
+## Entry points
+
+- Canonical tables (Chinese): https://github.com/silverbullet-liang/freeload/blob/main/README.md
+- English overview: https://github.com/silverbullet-liang/freeload/blob/main/README.en.md
+- Prompt index (30, six categories): https://github.com/silverbullet-liang/freeload/blob/main/prompts/README.md
+- Skills (2 packages): https://github.com/silverbullet-liang/freeload/tree/main/skills
+- Machine-readable data: https://github.com/silverbullet-liang/freeload/tree/main/data
+
+## What counts as free
+
+Three rules, applied to every row:
+
+1. Genuinely free — no pay-first-then-refund, no invite-to-unlock, no card required to try.
+2. Usable long term — not a seven-day trial or a one-off credit.
+3. Alive right now — each row carries a `checked` date; dead entries are removed.
+
+## Sections
+
+- AI: free model APIs (text / image / video), 5 rows.
+- Cloud storage: free storage and uncapped chat-based file pools, 2 rows.
+- Hosting: static hosts, PHP hosts, phone-publishable HTML, 10 rows.
+- APIs: weather, music, TTS, video parsing, 12 rows.
+- Prompts: 30 complete prompts, one file each.
+- Skills: pocket-explainer (document to narrated mp4), chrome-kernel-installer (CDP browser driver).
+
+## License
+
+MIT

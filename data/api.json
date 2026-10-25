@@ -17,7 +17,8 @@
     "group": "语音",
     "rating": "人上人",
     "gotcha": "Web Speech 各系统音色差异极大，Safari 长文本会截断；DECtalk 首次播放必须用户交互解锁 AudioContext；ResponsiveVoice 新版要 key 且仅限非商业；三者都不是「接口」，是前端方案，服务端批量合成用不上",
-    "checked": "2026-10-25"
+    "checked": "2026-10-25",
+    "skip_check": true
   },
   {
     "name": "米人 API",
@@ -27,16 +28,6 @@
     "group": "视频解析",
     "rating": "顶级",
     "gotcha": "仅普通 BV 视频，番剧/电影/电视剧不支持；返回的是 DASH 分离流，视频音频要自己 ffmpeg 合流；第三方站点随时限流，别当前端唯一依赖",
-    "checked": "2026-10-25"
-  },
-  {
-    "name": "呆错 API",
-    "url": "https://api.daicuo.cc/parse/",
-    "what": "多平台点播解析（B 站、腾讯、爱奇艺、优酷、A 站），返回播放器嵌入地址或直链",
-    "gate": "邮箱",
-    "group": "视频解析",
-    "rating": "人上人",
-    "gotcha": "必须登录拿 token；返回可能是播放器嵌入地址而不是直链；本次未实测（需注册），用前自测",
     "checked": "2026-10-25"
   },
   {
@@ -107,7 +98,8 @@
     "group": "天气",
     "rating": "人上人",
     "gotcha": "强制要求带可识别的 User-Agent（含联系方式），UGC 抓取会被封；挪威境外精度一般；有小时级限流",
-    "checked": "2026-10-25"
+    "checked": "2026-10-25",
+    "probe": "https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=59.91&lon=10.75"
   },
   {
     "name": "7Timer",

@@ -8,7 +8,9 @@
 
 > **Free tier, but actually verified.** {{TOTAL}} free services (AI / cloud storage / hosting / public APIs), {{PROMPT_TOTAL}} prompts and {{SKILL_COUNT}} skills. Every entry is tested by hand; dead links get deleted instead of kept as filler.
 
-![services](https://img.shields.io/badge/services-{{TOTAL}}-3ddc97) ![prompts](https://img.shields.io/badge/prompts-{{PROMPT_TOTAL}}-3ddc97) ![skills](https://img.shields.io/badge/skills-{{SKILL_COUNT}}-3ddc97) ![license](https://img.shields.io/badge/license-MIT-111827)
+![services](https://img.shields.io/badge/services-{{TOTAL}}-3ddc97) ![prompts](https://img.shields.io/badge/prompts-{{PROMPT_TOTAL}}-3ddc97) ![skills](https://img.shields.io/badge/skills-{{SKILL_COUNT}}-3ddc97) ![license](https://img.shields.io/badge/license-MIT-111827) [![link-check](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml/badge.svg)](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml)
+
+English overview: [README.en.md](README.en.md)
 
 > 最后核对于 {{UPDATED}}，每条都带自己的核对日期。
 
