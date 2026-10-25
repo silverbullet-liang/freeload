@@ -2,13 +2,13 @@
 
 # 白嫖清单
 
-**30 个能白嫖的服务，30 条天天在用的 AI 指令，2 个能直接装的技能。**
+**32 个能白嫖的服务，30 条天天在用的 AI 指令，2 个能直接装的技能。**
 一个帮你省钱，一个帮你省事，一个帮你省时间。
 服务是我亲手打的，指令是我亲手写的，技能是我自己在跑的——打不通、不好用的，直接删，不留墓碑。
 
-> **Free tier, but actually verified.** 30 free services (AI / cloud storage / hosting / public APIs), 30 prompts and 2 skills. Every entry is tested by hand; dead links get deleted instead of kept as filler.
+> **Free tier, but actually verified.** 32 free services (AI / cloud storage / hosting / public APIs), 30 prompts and 2 skills. Every entry is tested by hand; dead links get deleted instead of kept as filler.
 
-![services](https://img.shields.io/badge/services-30-3ddc97) ![prompts](https://img.shields.io/badge/prompts-30-3ddc97) ![skills](https://img.shields.io/badge/skills-2-3ddc97) ![license](https://img.shields.io/badge/license-MIT-111827) [![link-check](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml/badge.svg)](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml)
+![services](https://img.shields.io/badge/services-32-3ddc97) ![prompts](https://img.shields.io/badge/prompts-30-3ddc97) ![skills](https://img.shields.io/badge/skills-2-3ddc97) ![license](https://img.shields.io/badge/license-MIT-111827) [![link-check](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml/badge.svg)](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml)
 
 English overview: [README.en.md](README.en.md)
 
@@ -81,7 +81,7 @@ English overview: [README.en.md](README.en.md)
 - [AI](#ai) —— 5 条
 - [网盘](#%E7%BD%91%E7%9B%98) —— 2 条
 - [服务器](#%E6%9C%8D%E5%8A%A1%E5%99%A8) —— 10 条
-- [API](#api) —— 13 条
+- [API](#api) —— 15 条
 - [AI 指令](#ai-%E6%8C%87%E4%BB%A4) —— 30 条
 - [AI Skills](#ai-skills) —— 2 个
 
@@ -237,7 +237,9 @@ English overview: [README.en.md](README.en.md)
 
 | 评级 | 名称 | 白嫖什么 | 门槛 | 坑 / 限制 | 最后确认 |
 | :--: | :-- | :-- | :-- | :-- | :-- |
+| **顶级** | [Cap PoW 人机验证](https://captcha.gurl.eu.org) | 开源 PoW 人机验证（Cap），官方 cap-widget 托管在 Cloudflare Workers：前端嵌组件、算完 PoW 拿 token，服务端调 /siteverify 校验；不用注册、不用 key，也可以自己部署一套 | 免注册 | token 一次性且绑定实例，换实例必须重新解；CF Workers 实例在部分网络会被 403（用 curl 直连就吃过），线上要备一个备用实例；自部署要自己发 challenge 并校验，不是引个 JS 就完事；PoW 证明的是「算力活」，脚本照样能过，挡的是低成本刷量而不是真机器人 | 2026-10-25 |
 | **人上人** | [小象人机认证](https://xiaoxianghost.42web.io/renji/) | 一个共享的 Cloudflare Turnstile 实例：页面里嵌 data-sitekey="0x4AAAAAADfVUwxVYi1RFGI0"，验证 token 提交到它那儿校验，通过后按你的流程放行；不用注册 Cloudflare、不用自建 sitekey | 免注册 | sitekey 是共享的，别人拿它刷量会连累你一起被 CF 限流；校验只回 HTML，没有 JSON API，要自己用表单或 iframe 接；站点跑在 InfinityFree 上，本身带 /aes.js 反爬挑战，服务端直连拿不到真页面（要先用它给的 AES cookie 过挑战），所以只能浏览器端用；第三方随时关停；认真做站还是自己注册 Turnstile——免费额度 100 万次/月，注册成本只有几分钟 | 2026-10-25 |
+| **人上人** | [Cap 备用实例（cap-pow.wuw.li）](https://cap-pow.wuw.li) | Cap 的 PHP 公共实例，给主实例兜底：自带 cap-pow.js（5KB），必须同时加载 cap-pow.css（2.7KB），组件 class 固定；前端 3 秒没渲染出验证框就切过来 | 免注册 | 与 captcha.gurl.eu.org 的 token 不通用，服务端要按 channel 分开校验；只引 JS 不引 CSS 会变成一坨没有样式的按钮；个人维护的公共实例随时可能关；两套实例并用时校验失败必须 fail-closed，别默认放行 | 2026-10-25 |
 
 ## AI 指令
 
