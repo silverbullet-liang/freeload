@@ -1,6 +1,6 @@
 # Freeload
 
-> Verified free tiers: 29 services (AI / cloud storage / hosting / public APIs), 30 prompts, 2 installable skills. Every entry was tested by hand; dead links are deleted, not tombstoned. A weekly GitHub Action re-probes every endpoint.
+> Verified free tiers: 30 services (AI / cloud storage / hosting / public APIs), 30 prompts, 2 installable skills. Every entry was tested by hand; dead links are deleted, not tombstoned. A weekly GitHub Action re-probes every endpoint.
 
 ## Entry points
 
@@ -23,7 +23,7 @@ Three rules, applied to every row:
 - AI: free model APIs (text / image / video), 5 rows.
 - Cloud storage: free storage and uncapped chat-based file pools, 2 rows.
 - Hosting: static hosts, PHP hosts, phone-publishable HTML, 10 rows.
-- APIs: weather, music, TTS, video parsing, 12 rows.
+- APIs: weather, music, TTS, video parsing, 13 rows.
 - Prompts: 30 complete prompts, one file each.
 - Skills: pocket-explainer (document to narrated mp4), chrome-kernel-installer (CDP browser driver).
 

@@ -120,5 +120,15 @@
     "rating": "人上人",
     "gotcha": "非官方 API，随时改；实测 /rest/province 正常，/f/rest/real/54511 返回结构在但字段全空；只适合当兜底，别当主数据源",
     "checked": "2026-10-25"
+  },
+  {
+    "name": "小象人机认证",
+    "url": "https://xiaoxianghost.42web.io/renji/",
+    "what": "一个共享的 Cloudflare Turnstile 实例：页面里嵌 data-sitekey=\"0x4AAAAAADfVUwxVYi1RFGI0\"，验证 token 提交到它那儿校验，通过后按你的流程放行；不用注册 Cloudflare、不用自建 sitekey",
+    "gate": "免注册",
+    "group": "人机验证",
+    "rating": "人上人",
+    "gotcha": "sitekey 是共享的，别人拿它刷量会连累你一起被 CF 限流；校验只回 HTML，没有 JSON API，要自己用表单或 iframe 接；站点跑在 InfinityFree 上，本身带 /aes.js 反爬挑战，服务端直连拿不到真页面（要先用它给的 AES cookie 过挑战），所以只能浏览器端用；第三方随时关停；认真做站还是自己注册 Turnstile——免费额度 100 万次/月，注册成本只有几分钟",
+    "checked": "2026-10-25"
   }
 ]

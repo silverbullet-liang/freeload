@@ -2,13 +2,13 @@
 
 # 白嫖清单
 
-**29 个能白嫖的服务，30 条天天在用的 AI 指令，2 个能直接装的技能。**
+**30 个能白嫖的服务，30 条天天在用的 AI 指令，2 个能直接装的技能。**
 一个帮你省钱，一个帮你省事，一个帮你省时间。
 服务是我亲手打的，指令是我亲手写的，技能是我自己在跑的——打不通、不好用的，直接删，不留墓碑。
 
-> **Free tier, but actually verified.** 29 free services (AI / cloud storage / hosting / public APIs), 30 prompts and 2 skills. Every entry is tested by hand; dead links get deleted instead of kept as filler.
+> **Free tier, but actually verified.** 30 free services (AI / cloud storage / hosting / public APIs), 30 prompts and 2 skills. Every entry is tested by hand; dead links get deleted instead of kept as filler.
 
-![services](https://img.shields.io/badge/services-29-3ddc97) ![prompts](https://img.shields.io/badge/prompts-30-3ddc97) ![skills](https://img.shields.io/badge/skills-2-3ddc97) ![license](https://img.shields.io/badge/license-MIT-111827) [![link-check](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml/badge.svg)](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml)
+![services](https://img.shields.io/badge/services-30-3ddc97) ![prompts](https://img.shields.io/badge/prompts-30-3ddc97) ![skills](https://img.shields.io/badge/skills-2-3ddc97) ![license](https://img.shields.io/badge/license-MIT-111827) [![link-check](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml/badge.svg)](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml)
 
 English overview: [README.en.md](README.en.md)
 
@@ -81,7 +81,7 @@ English overview: [README.en.md](README.en.md)
 - [AI](#ai) —— 5 条
 - [网盘](#%E7%BD%91%E7%9B%98) —— 2 条
 - [服务器](#%E6%9C%8D%E5%8A%A1%E5%99%A8) —— 10 条
-- [API](#api) —— 12 条
+- [API](#api) —— 13 条
 - [AI 指令](#ai-%E6%8C%87%E4%BB%A4) —— 30 条
 - [AI Skills](#ai-skills) —— 2 个
 
@@ -232,6 +232,12 @@ English overview: [README.en.md](README.en.md)
 | **人上人** | [MET Norway](https://api.met.no/weatherapi/locationforecast/2.0/compact) | 挪威气象局全球预报，compact 端点返回 GeoJSON 时序，免 key | 免注册 | 强制要求带可识别的 User-Agent（含联系方式），UGC 抓取会被封；挪威境外精度一般；有小时级限流 | 2026-10-25 |
 | **人上人** | [7Timer](https://www.7timer.info/bin/astro.php) | 天文与常规两套产品，astro 给云量 / 视宁度 / 透明度，观星与摄影场景好用 | 免注册 | 6 小时一更新、网格分辨率粗；无中文；部分产品线已停更 | 2026-10-25 |
 | **人上人** | [中央气象台 nmc.cn](http://www.nmc.cn/rest/province) | 非公开接口：/rest/province 省市列表、/f/rest/tempchart 温度曲线、/f/rest/aqi 空气质量、/f/rest/real 实况 | 免注册 | 非官方 API，随时改；实测 /rest/province 正常，/f/rest/real/54511 返回结构在但字段全空；只适合当兜底，别当主数据源 | 2026-10-25 |
+
+### 人机验证
+
+| 评级 | 名称 | 白嫖什么 | 门槛 | 坑 / 限制 | 最后确认 |
+| :--: | :-- | :-- | :-- | :-- | :-- |
+| **人上人** | [小象人机认证](https://xiaoxianghost.42web.io/renji/) | 一个共享的 Cloudflare Turnstile 实例：页面里嵌 data-sitekey="0x4AAAAAADfVUwxVYi1RFGI0"，验证 token 提交到它那儿校验，通过后按你的流程放行；不用注册 Cloudflare、不用自建 sitekey | 免注册 | sitekey 是共享的，别人拿它刷量会连累你一起被 CF 限流；校验只回 HTML，没有 JSON API，要自己用表单或 iframe 接；站点跑在 InfinityFree 上，本身带 /aes.js 反爬挑战，服务端直连拿不到真页面（要先用它给的 AES cookie 过挑战），所以只能浏览器端用；第三方随时关停；认真做站还是自己注册 Turnstile——免费额度 100 万次/月，注册成本只有几分钟 | 2026-10-25 |
 
 ## AI 指令
 

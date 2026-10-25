@@ -26,7 +26,7 @@ WARN_CODES = {403, 405, 429}
 
 
 def probe(url: str) -> tuple[int, str]:
-    """HEAD 优先，不通再 GET；返回 (状态码, 备注)。"""
+    """HEAD 不可靠——不少 API 只实现 GET，HEAD 会假报 404，所以 HEAD 失败一律换 GET 复核。"""
     last = (0, "no attempt")
     for method in ("HEAD", "GET"):
         try:
@@ -34,10 +34,7 @@ def probe(url: str) -> tuple[int, str]:
             with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
                 return resp.status, ""
         except urllib.error.HTTPError as exc:
-            if exc.code in WARN_CODES:
-                last = (exc.code, "可能是 Cloudflare 挑战或限流")
-                continue
-            return exc.code, "HTTP %d" % exc.code
+            last = (exc.code, "HTTP %d" % exc.code)
         except Exception as exc:  # noqa: BLE001 - 网络层什么都可能抛
             last = (0, type(exc).__name__)
     return last
