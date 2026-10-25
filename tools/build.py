@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import datetime
 import json
+import re
 import sys
 from pathlib import Path
 from urllib.parse import quote
@@ -165,6 +166,54 @@ def _strip_block(rows: list[dict]) -> str:
     return "\n\n".join(parts)
 
 
+SKILLS = ROOT / "skills"
+# 表格里的一句话卖点；没有条目的回退到 frontmatter 首句（截 60 字）
+SKILL_BLURB = {
+    "pocket-explainer": "给一个主题或文档，产出带配音、字幕、章节条的成品 mp4，6 套主题可选",
+    "chrome-kernel-installer": "装无头 Chrome 内核，再用「截图编号」操作网页：点击、填表、抓接口",
+}
+
+
+def scan_skills() -> list[dict]:
+    """扫 skills/*/SKILL.md，取 frontmatter 的 description 首句。"""
+    out: list[dict] = []
+    if not SKILLS.is_dir():
+        return out
+    for d in sorted(p for p in SKILLS.iterdir() if p.is_dir() and not p.name.startswith(".")):
+        md = d / "SKILL.md"
+        if not md.is_file():
+            continue
+        text = md.read_text(encoding="utf-8", errors="replace")
+        m = re.search(r"^description:\s*(.+)$", text, re.M)
+        desc = m.group(1).strip().strip('"').strip("'") if m else ""
+        for sep in ("。", ". "):
+            if sep in desc:
+                desc = desc.split(sep)[0]
+                break
+        files = sorted(f.relative_to(d).as_posix() for f in d.rglob("*") if f.is_file())
+        out.append({"name": d.name, "desc": desc, "files": files})
+    return out
+
+
+def render_skills(items: list[dict]) -> str:
+    if not items:
+        return "_待收录。_"
+    total_files = sum(len(i["files"]) for i in items)
+    lines = [
+        f"{len(items)} 个，共 {total_files} 个文件。每个都是完整目录：`SKILL.md` + 脚本 + 模板，"
+        "放进支持 Skill 的客户端（Claude Code、Codex、Kimi 等）就能用，不需要改代码。",
+        "",
+        "| 技能 | 能干什么 | 文件 | 入口 |",
+        "| :-- | :-- | :--: | :-- |",
+    ]
+    for i in items:
+        lines.append(
+            f"| {cell(i['name'])} | {cell(SKILL_BLURB.get(i['name'], i['desc'][:60]))} | {len(i['files'])} | "
+            f"[SKILL.md](skills/{quote(i['name'])}/SKILL.md) |"
+        )
+    return "\n".join(lines)
+
+
 def scan_prompts() -> list[tuple[str, list[Path]]]:
     """扫 prompts/ 下的分类目录，返回 [(分类名, [文件...]), ...]。"""
     groups: list[tuple[str, list[Path]]] = []
@@ -303,9 +352,12 @@ def main() -> int:
         text = text.replace(f"{{{{{key.upper()}_COUNT}}}}", str(counts[key]))
     prompt_groups = scan_prompts()
     prompt_total = sum(len(f) for _, f in prompt_groups)
+    skill_items = scan_skills()
     text = text.replace("{{TOP}}", build_top(rows_by_cat))
     text = text.replace("{{PROMPT_SUMMARY}}", render_prompt_summary(prompt_groups))
     text = text.replace("{{PROMPT_TOTAL}}", str(prompt_total))
+    text = text.replace("{{SKILLS}}", render_skills(skill_items))
+    text = text.replace("{{SKILL_COUNT}}", str(len(skill_items)))
     text = text.replace("{{TOTAL}}", str(sum(counts.values()))).replace("{{UPDATED}}", today)
     OUT.write_text(text, encoding="utf-8")
     if prompt_groups:

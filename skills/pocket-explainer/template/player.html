@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="noir">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>pocket-explainer</title>
+<style>
+/* ---------- 主题变量：6 套，切换 data-theme 即可 ---------- */
+:root{
+  --bg:#0b0c11; --fg:#f2f4f7; --muted:#8b90a0;
+  --accent:#6630F8; --accent-2:#A175F1;
+  --line:rgba(255,255,255,.12); --grid:rgba(207,224,255,.075);
+  --font:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --font-body:var(--font); --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  --radius:2px; --shadow:none;
+  --sub-stroke:2px #000;
+}
+[data-theme="paper"]{
+  --bg:#f6f1e7; --fg:#221d16; --muted:#7a6f60;
+  --accent:#b4472d; --accent-2:#d97b52;
+  --line:rgba(34,29,22,.14); --grid:rgba(34,29,22,.05);
+  --font:"Songti SC","Noto Serif SC",Georgia,serif;
+  --font-body:"PingFang SC",system-ui,sans-serif;
+  --radius:1px; --shadow:none; --sub-stroke:0;
+}
+[data-theme="swiss"]{
+  --bg:#ffffff; --fg:#0a0a0a; --muted:#6a6a6a;
+  --accent:#d0021b; --accent-2:#d0021b;
+  --line:rgba(0,0,0,.16); --grid:transparent;
+  --font:"Helvetica Neue",Arial,system-ui,sans-serif;
+  --font-body:var(--font); --radius:0; --shadow:none; --sub-stroke:0;
+}
+[data-theme="terminal"]{
+  --bg:#0a0f0a; --fg:#d7ffd9; --muted:#5f8a63;
+  --accent:#39d353; --accent-2:#7ee787;
+  --line:rgba(57,211,83,.22); --grid:rgba(57,211,83,.06);
+  --font:var(--mono); --font-body:var(--mono); --radius:0; --shadow:none;
+}
+[data-theme="blueprint"]{
+  --bg:#0f1b3d; --fg:#e8f0ff; --muted:#8ba3cf;
+  --accent:#7fb2ff; --accent-2:#bcd7ff;
+  --line:rgba(127,178,255,.22); --grid:rgba(127,178,255,.10);
+  --font:"PingFang SC",system-ui,sans-serif;
+  --font-body:var(--font); --radius:1px; --shadow:none;
+}
+[data-theme="soft"]{
+  --bg:#f2f4f8; --fg:#1d2433; --muted:#6b7488;
+  --accent:#3b6ef0; --accent-2:#7aa0ff;
+  --line:rgba(29,36,51,.10); --grid:transparent;
+  --font:"PingFang SC",system-ui,sans-serif;
+  --font-body:var(--font); --radius:14px; --shadow:0 10px 30px rgba(29,36,51,.08);
+  --sub-stroke:0;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#000}
+body{display:flex;align-items:center;justify-content:center}
+#stage{
+  position:relative;width:1280px;height:720px;background:var(--bg);color:var(--fg);
+  font-family:var(--font);overflow:hidden;transform-origin:center center;
+}
+#stage::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(circle,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px;
+}
+[data-theme="terminal"] #stage::before{
+  background-image:repeating-linear-gradient(0deg,var(--grid) 0 1px,transparent 1px 4px);
+  background-size:auto;
+}
+[data-theme="blueprint"] #stage::before{
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+[data-theme="paper"] #stage::before{background-image:none}
+
+#view{position:absolute;inset:0;padding:64px 72px 150px}
+.shot{position:absolute;inset:0;padding:64px 72px 150px;opacity:0}
+.shot.on{opacity:1}
+.shot h1{font-size:64px;line-height:1.12;font-weight:800;letter-spacing:-.02em}
+.shot h2{font-size:44px;line-height:1.2;font-weight:700;letter-spacing:-.01em}
+.shot p{margin-top:20px;font-size:24px;line-height:1.7;color:var(--muted);font-family:var(--font-body)}
+.shot .num{font-size:120px;line-height:1;font-weight:800;color:var(--accent);letter-spacing:-.04em}
+.shot .mono{font-family:var(--mono);font-size:20px;color:var(--accent-2)}
+.shot .rule{height:1px;background:var(--line);margin:28px 0}
+.shot .card{background:color-mix(in srgb,var(--fg) 4%,transparent);border:1px solid var(--line);
+  border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow)}
+
+#sub{
+  position:absolute;left:0;right:0;bottom:62px;text-align:center;
+  font-size:44px;line-height:1.35;font-weight:700;color:#fff;
+  -webkit-text-stroke:var(--sub-stroke);
+  text-shadow:0 2px 8px rgba(0,0,0,.55);padding:0 80px;
+}
+[data-theme="paper"] #sub,[data-theme="swiss"] #sub,[data-theme="soft"] #sub{color:var(--fg);text-shadow:none}
+#sub.hide{display:none}
+
+#chap{position:absolute;left:0;right:0;bottom:0;height:44px;display:flex;align-items:center;
+  padding:0 72px;gap:0;border-top:1px solid var(--line);background:color-mix(in srgb,var(--bg) 88%,transparent)}
+.cseg{flex:1;position:relative;height:3px;background:color-mix(in srgb,var(--fg) 14%,transparent);overflow:hidden}
+.cseg>i{position:absolute;inset:0;width:0;background:var(--accent);display:block}
+.cseg>span{position:absolute;left:0;top:8px;font-size:11px;color:var(--muted);
+  font-family:var(--mono);white-space:nowrap}
+
+#hud{
+  position:absolute;left:50%;top:28px;transform:translateX(-50%);
+  padding:9px 20px;border:1px solid var(--line);border-radius:999px;
+  font-family:var(--mono);font-size:13px;color:var(--muted);letter-spacing:.08em;
+  background:color-mix(in srgb,var(--bg) 70%,transparent);white-space:nowrap
+}
+
+#ctrl{position:fixed;left:0;right:0;bottom:0;display:flex;gap:10px;align-items:center;
+  padding:10px 16px;background:rgba(0,0,0,.72);color:#ddd;font:12px/1 var(--mono);z-index:50}
+#ctrl button{appearance:none;border:1px solid rgba(255,255,255,.22);background:transparent;color:#ddd;
+  padding:7px 12px;cursor:pointer;font:12px/1 var(--mono)}
+#ctrl button:hover{border-color:#888}
+#bar{flex:1;height:3px;background:rgba(255,255,255,.16);position:relative;cursor:pointer}
+#bar>i{position:absolute;inset:0;width:0;background:#fff;display:block}
+#gate{position:fixed;inset:0;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:14px;z-index:100;cursor:pointer}
+#gate .t{font-size:15px;letter-spacing:.08em}
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div id="view"></div>
+  <div id="sub"></div>
+  <div id="chap"></div>
+  <div id="hud"></div>
+</div>
+
+<div id="ctrl">
+  <button id="play">播放</button>
+  <div id="bar"><i></i></div>
+  <span id="time">0:00 / 0:00</span>
+</div>
+
+<div id="gate"><div class="t">点击开始</div></div>
+
+<script id="deck" type="application/json">/*__DECK__*/</script>
+<script src="https://cdn.jsdelivr.net/npm/@zumer/snapdom@1.9.7/dist/snapdom.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/webm-muxer@5.1.4/build/webm-muxer.js"></script>
+<script>
+(function(){
+  "use strict";
+  var D;
+  try { D = JSON.parse(document.getElementById('deck').textContent); }
+  catch(e){ D = window.__DECK__ || null; }
+  if(!D){ document.getElementById('gate').textContent = '缺少 __DECK__ 数据'; return; }
+
+  if(D.theme){ document.documentElement.setAttribute('data-theme', D.theme); }
+
+  var LINES = D.lines || [];
+  var SHOTS = D.shots || {};
+  var CHAPTERS = D.chapters || [];
+  var acc = 0;
+  LINES.forEach(function(l){ l.a = acc; acc += (l.dur || 0); l.b = acc; });
+  var TOTAL = acc || D.total || 0;
+
+  var stage = document.getElementById('stage');
+  var view  = document.getElementById('view');
+  var subEl = document.getElementById('sub');
+  var hudEl = document.getElementById('hud');
+  var chapEl= document.getElementById('chap');
+  var barEl = document.getElementById('bar').firstElementChild;
+  var timeEl= document.getElementById('time');
+
+  CHAPTERS.forEach(function(c){
+    var d = document.createElement('div');
+    d.className = 'cseg';
+    d.innerHTML = '<i></i><span>' + (c.name || '') + '</span>';
+    chapEl.appendChild(d);
+  });
+  var segs = Array.prototype.slice.call(chapEl.children);
+  CHAPTERS.forEach(function(c, i){ c.at = c.at || 0; });
+
+  function fmt(t){
+    t = Math.max(0, t || 0);
+    return Math.floor(t / 60) + ':' + ('0' + Math.floor(t % 60)).slice(-2);
+  }
+  function lineAt(t){
+    for(var i = LINES.length - 1; i >= 0; i--){ if(t >= LINES[i].a) return i; }
+    return 0;
+  }
+  function chapterIdxAt(t){
+    var k = 0;
+    for(var i = 0; i < CHAPTERS.length; i++){ if(t >= CHAPTERS[i].at) k = i; }
+    return k;
+  }
+
+  var mounted = -1, lastSub = null;
+  function mount(i){
+    if(i === mounted) return;
+    mounted = i;
+    var l = LINES[i] || {};
+    var html = SHOTS[l.shot] || (l.html || '');
+    view.innerHTML = '<div class="shot on">' + html + '</div>';
+  }
+  function paint(t){
+    var i = lineAt(t);
+    mount(i);
+    var txt = (LINES[i] && LINES[i].text) || '';
+    if(txt !== lastSub){ subEl.textContent = txt; lastSub = txt; }
+    subEl.classList.toggle('hide', !txt);
+    var l = LINES[i] || {};
+    if(l.hud && hudEl.textContent !== l.hud){ hudEl.textContent = l.hud; }
+    var ci = chapterIdxAt(t);
+    segs.forEach(function(s, k){
+      var c = CHAPTERS[k];
+      var next = k + 1 < CHAPTERS.length ? CHAPTERS[k + 1].at : TOTAL;
+      var p = Math.max(0, Math.min(1, (t - c.at) / Math.max(0.001, next - c.at)));
+      if(t < c.at) p = 0;
+      s.firstElementChild.style.width = (p * 100).toFixed(2) + '%';
+      s.style.opacity = k === ci ? '1' : '.55';
+    });
+    barEl.style.width = (TOTAL ? Math.min(100, t / TOTAL * 100) : 0) + '%';
+    timeEl.textContent = fmt(t) + ' / ' + fmt(TOTAL);
+  }
+
+  /* ---------- 静态帧复用：同镜头、同字幕、动画进度同桶 → 不重绘 ---------- */
+  function frameKey(t, i){
+    var l = LINES[i] || {};
+    var local = t - (l.a || 0);
+    var anim = (l.anim || 0);            /* 该镜入场动画时长，秒 */
+    var bucket = anim > 0 ? Math.min(99, Math.floor(local / anim * 30)) : 0;
+    return (l.shot || i) + '|' + (l.text || '') + '|' + bucket;
+  }
+
+  /* ---------- 渲染接口 ---------- */
+  var rCanvas = null, rKey = '';
+  function ensureCanvas(W, H){
+    if(!rCanvas){ rCanvas = document.createElement('canvas'); }
+    if(rCanvas.width !== W || rCanvas.height !== H){ rCanvas.width = W; rCanvas.height = H; }
+    return rCanvas;
+  }
+
+  window.__seek = function(t){ paint(t); };
+  window.__total = function(){ return TOTAL; };
+  window.__lines = function(){ return LINES; };
+
+  window.__renderPart = async function(t0, dur, W, H, fps, tag){
+    W = W || 1920; H = H || 1080; fps = fps || 30;
+    var g0 = document.getElementById('gate'); if(g0) g0.style.display = 'none';
+    var c0 = document.getElementById('ctrl'); if(c0) c0.style.display = 'none';
+    stage.style.transform = 'none';
+    stage.style.position = 'absolute';
+    stage.style.left = '0'; stage.style.top = '0';
+
+    var total = Math.max(0, Math.min(dur, TOTAL - t0));
+    var frames = Math.ceil(total * fps);
+    var canvas = ensureCanvas(W, H);
+    var ctx = canvas.getContext('2d');
+    var scale = W / 1280;
+
+    var muxer = new WebMMuxer.Muxer({
+      target: new WebMMuxer.ArrayBufferTarget(),
+      video: { codec: 'V_VP9', width: W, height: H, frameRate: fps }
+    });
+    var enc = new VideoEncoder({
+      output: function(c, m){ muxer.addVideoChunk(c, m); },
+      error: function(e){ console.error(e); }
+    });
+    enc.configure({ codec: 'vp09.00.10.08', width: W, height: H, bitrate: 8000000, framerate: fps });
+
+    var step = 1 / fps, drawn = 0;
+    for(var k = 0; k < frames; k++){
+      var t = t0 + k * step;
+      var i = lineAt(t);
+      var key = frameKey(t, i);
+      if(key !== rKey){
+        paint(t);
+        var node = stage;
+        var c = await snapdom.toCanvas(node, { scale: scale });
+        ctx.drawImage(c, 0, 0, W, H);
+        rKey = key; drawn++;
+      } else {
+        /* 复用上一帧像素：画布不清空即为上一帧内容 */
+        if(k === 0 && !rKey){ paint(t); }
+      }
+      var f = new VideoFrame(canvas, {
+        timestamp: Math.round(k * 1000000 / fps),
+        duration: Math.round(1000000 / fps)
+      });
+      enc.encode(f, { keyFrame: k % (fps * 2) === 0 });
+      f.close();
+      if(enc.encodeQueueSize > 8){ await new Promise(function(r){ setTimeout(r, 16); }); }
+      if(k % 20 === 0){
+        if(window.__partCb) window.__partCb(k, frames);
+        await new Promise(function(r){ setTimeout(r, 0); });
+      }
+    }
+    await enc.flush();
+    muxer.finalize();
+    var blob = new Blob([muxer.target.buffer], { type: 'video/webm' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'part_' + String(tag || 0).padStart(3, '0') + '.webm';
+    document.body.appendChild(a); a.click(); a.remove();
+    return blob.size;
+  };
+
+  /* ---------- 音频：内嵌 base64 → 原速混音（保音高），外部用 rubberband 压缩 ---------- */
+  window.__mixAudio = async function(total, orig){
+    var SR = 48000, RATE = D.rate || 1;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    var ac = new AC();
+    var bufs = [];
+    for(var i = 0; i < LINES.length; i++){
+      var b64 = (LINES[i] && LINES[i].audio) || '';
+      if(!b64){ bufs.push(null); continue; }
+      try{
+        var bin = atob(b64), n = bin.length, u8 = new Uint8Array(n);
+        for(var k = 0; k < n; k++) u8[k] = bin.charCodeAt(k);
+        bufs.push(await ac.decodeAudioData(u8.buffer));
+      }catch(e){ bufs.push(null); }
+    }
+    var span = total * (orig ? 1 : 1);
+    var octx = new OfflineAudioContext(1, Math.ceil(span * SR), SR);
+    for(var j = 0; j < LINES.length; j++){
+      if(!bufs[j]) continue;
+      var s = octx.createBufferSource();
+      s.buffer = bufs[j];
+      s.connect(octx.destination);
+      s.start(Math.max(0, LINES[j].a));
+    }
+    var out = await octx.startRendering();
+    try{ ac.close(); }catch(e){}
+    return out.getChannelData(0);
+  };
+
+  window.__dumpWav = async function(){
+    var ch = await window.__mixAudio(TOTAL);
+    var SR = 48000, n = ch.length;
+    var ab = new ArrayBuffer(44 + n * 2), dv = new DataView(ab);
+    function ws(o, s){ for(var i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); }
+    ws(0,'RIFF'); dv.setUint32(4, 36 + n * 2, true); ws(8,'WAVE'); ws(12,'fmt ');
+    dv.setUint32(16,16,true); dv.setUint16(20,1,true); dv.setUint16(22,1,true);
+    dv.setUint32(24,SR,true); dv.setUint32(28,SR*2,true); dv.setUint16(32,2,true); dv.setUint16(34,16,true);
+    ws(36,'data'); dv.setUint32(40, n * 2, true);
+    for(var i = 0; i < n; i++){
+      var v = Math.max(-1, Math.min(1, ch[i]));
+      dv.setInt16(44 + i * 2, v < 0 ? v * 0x8000 : v * 0x7fff, true);
+    }
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([ab], { type: 'audio/wav' }));
+    a.download = 'master.wav';
+    document.body.appendChild(a); a.click(); a.remove();
+    return n;
+  };
+
+  /* ---------- 试看 ---------- */
+  var playing = false, t0 = 0, base = 0, raf = 0;
+  function tick(){
+    if(!playing) return;
+    var t = base + (performance.now() - t0) / 1000;
+    if(t >= TOTAL){ t = TOTAL; playing = false; }
+    paint(t);
+    raf = requestAnimationFrame(tick);
+  }
+  function play(){ if(playing) return; playing = true; t0 = performance.now(); raf = requestAnimationFrame(tick); }
+  function pause(){ playing = false; base = base + (performance.now() - t0) / 1000; cancelAnimationFrame(raf); }
+
+  document.getElementById('play').addEventListener('click', function(){
+    if(playing){ pause(); this.textContent = '播放'; }
+    else { play(); this.textContent = '暂停'; }
+  });
+  document.getElementById('bar').addEventListener('click', function(e){
+    var r = this.getBoundingClientRect();
+    base = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * TOTAL;
+    t0 = performance.now(); paint(base);
+  });
+  document.getElementById('gate').addEventListener('click', function(){
+    this.style.display = 'none';
+    paint(0); play();
+  });
+
+  /* 自适应缩放（只影响试看，不影响渲染） */
+  function fit(){
+    var s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    stage.style.transform = 'scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit); fit();
+  paint(0);
+})();
+</script>
+</body>
+</html>
