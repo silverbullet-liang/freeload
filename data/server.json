@@ -54,7 +54,7 @@
     "name": "上码 Upma",
     "url": "https://www.upma.cn",
     "what": "2 个项目、1GB 流量/月、单次上传 10MB、总存储 100MB、自定义域名 + 自动 SSL、香港 CN2 免备案",
-    "gate": "实名",
+    "gate": "手机号",
     "group": "静态部署",
     "rating": "人上人",
     "score": {
@@ -107,7 +107,7 @@
     "name": "豆包工作模式建站",
     "url": "https://www.doubao.com",
     "what": "用豆包「工作模式」配一个可被外部调用的接口，把 AI 输出当成站点内容与执行层；额度走豆包工作模式，目前没看到明示的调用上限",
-    "gate": "实名",
+    "gate": "手机号",
     "group": "AI 建站",
     "rating": "顶级",
     "score": {
@@ -124,7 +124,7 @@
     "name": "百度秒哒",
     "url": "https://miaoda.cn",
     "what": "一句话生成网站 / H5 / 小程序 / App。免费版按「秒点」计：注册送 200，每天登录送 100（免费版每月最多领 7 天，点数 7 天过期）；快速开发 10 点/次、深度开发 40 点/次、发布 20 点/次、开基础后端 15 点/天",
-    "gate": "实名",
+    "gate": "手机号",
     "group": "AI 建站",
     "rating": "NPC",
     "score": {
@@ -141,7 +141,7 @@
     "name": "Coze 扣子",
     "url": "https://www.coze.cn",
     "what": "字节的智能体 / 工作流平台，能把 Bot 发布成 HTTP API（/v3/chat）；国内个人免费版每天 500 资源点（零点重置、不累计）",
-    "gate": "实名",
+    "gate": "手机号",
     "group": "AI 建站",
     "rating": "NPC",
     "score": {
@@ -158,7 +158,7 @@
     "name": "Kimi CDN",
     "url": "https://kimi.moonshot.cn",
     "what": "在 Kimi 手机 App 里发布一个单文件 HTML，产物直接落在 Kimi 自用的 CDN 上（kimi-file.moonshot.cn），拿到一个公开可访问的地址：不买域名、不搭服务器、不备案，全屏渲染，可直接外发",
-    "gate": "实名",
+    "gate": "手机号",
     "group": "静态部署",
     "rating": "顶级",
     "score": {
