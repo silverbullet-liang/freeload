@@ -1,10 +1,16 @@
+![白嫖清单](images/cover.png)
+
 # 白嫖清单
 
 **{{TOTAL}} 个能白嫖的服务，{{PROMPT_TOTAL}} 条天天在用的 AI 指令，{{SKILL_COUNT}} 个能直接装的技能。**
 一个帮你省钱，一个帮你省事，一个帮你省时间。
 服务是我亲手打的，指令是我亲手写的，技能是我自己在跑的——打不通、不好用的，直接删，不留墓碑。
 
-> 更新 {{UPDATED}} · 共 **{{TOTAL}}** 条 · {{PROMPT_TOTAL}} 条指令 · {{SKILL_COUNT}} 个技能
+> **Free tier, but actually verified.** {{TOTAL}} free services (AI / cloud storage / hosting / public APIs), {{PROMPT_TOTAL}} prompts and {{SKILL_COUNT}} skills. Every entry is tested by hand; dead links get deleted instead of kept as filler.
+
+![services](https://img.shields.io/badge/services-{{TOTAL}}-3ddc97) ![prompts](https://img.shields.io/badge/prompts-{{PROMPT_TOTAL}}-3ddc97) ![skills](https://img.shields.io/badge/skills-{{SKILL_COUNT}}-3ddc97) ![license](https://img.shields.io/badge/license-MIT-111827)
+
+> 最后核对于 {{UPDATED}}，每条都带自己的核对日期。
 
 **三条路，看你现在要干嘛：**
 
@@ -27,11 +33,23 @@
 
 最近一轮实测了 12 个端点，删掉 6 个打不通或名不副实的。表里剩下的，都是当场验过的。
 
-## 夯级速览
+## 一页速查：直接抄答案
 
-{{TOP}}
+不想翻表，就按这张拿。这一版的最优解，下次实测变了会改。
 
-其余按 [从夯到拉](#评级) 排，评级越低不是不能用，是「能用但得忍着」。
+| 你要什么 | 直接拿 | 为什么是它 |
+| :-- | :-- | :-- |
+| 三模态 AI 全白嫖（文本 + 图 + 视频） | Agnes AI | 三样全免、不卡 token 总量，只卡 RPM |
+| 连注册都懒得 | Pollinations | 免 key 免注册，45 秒一张图、30 秒一段话 |
+| 免费静态站，长期挂 | Cloudflare Pages | 500 次构建/月 + 不限带宽 + 2 万文件 |
+| 手机上发一页 HTML | Kimi CDN | 手机 App 发一条，链接立刻可用 |
+| 免注册临时发页 | ship.page | curl 一行，30 天 |
+| 免费 PHP 主机 | InfinityFree | 5GB + 400 个库 + 单账号 3 个站点 |
+| 大容量存文档 | 豆包 AI 云盘 | 免费 5TB，只收文档与图片 |
+| 不封顶的文件池 | AI 对话当网盘 | 会话当文件夹，能搜、能分享 |
+| 免费天气 / 音乐 API | Open-Meteo / Injahow | 都免 key，实测 200 |
+| 让 AI 自己剪一条讲解片 | pocket-explainer | 一条命令出带配音字幕的 mp4 |
+| 让 AI 操作网页 | chrome-kernel-installer | 截图带编号，按号点 |
 
 ## 评级
 

@@ -267,17 +267,6 @@ def render_prompt_index(groups: list[tuple[str, list[Path]]]) -> str:
     return "\n".join(out) + "\n"
 
 
-def build_top(rows_by_cat: dict[str, list[dict]]) -> str:
-    """夯级速览：按分类列出 rating=夯 的条目。"""
-    parts = []
-    for key, name, _ in CATS:
-        hits = [r for r in rows_by_cat.get(key, []) if r.get("rating") == "夯"]
-        if hits:
-            links = " · ".join(f"[{cell(r['name'])}]({r['url'].strip()})" for r in hits)
-            parts.append(f"**{name}** {links}")
-    return "\n\n".join(parts) if parts else "_还没有夯级条目。_"
-
-
 def render(rows: list[dict], today: str, cat: str = "") -> str:
     """按 group 分节（组顺序取录入顺序），组内按评级从夯到拉排。"""
     if not rows:
@@ -353,7 +342,6 @@ def main() -> int:
     prompt_groups = scan_prompts()
     prompt_total = sum(len(f) for _, f in prompt_groups)
     skill_items = scan_skills()
-    text = text.replace("{{TOP}}", build_top(rows_by_cat))
     text = text.replace("{{PROMPT_SUMMARY}}", render_prompt_summary(prompt_groups))
     text = text.replace("{{PROMPT_TOTAL}}", str(prompt_total))
     text = text.replace("{{SKILLS}}", render_skills(skill_items))
