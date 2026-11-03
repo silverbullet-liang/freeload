@@ -2,17 +2,17 @@
 
 # 白嫖清单
 
-**32 个能白嫖的服务，30 条天天在用的 AI 指令，2 个能直接装的技能。**
+**35 个能白嫖的服务，30 条天天在用的 AI 指令，2 个能直接装的技能。**
 一个帮你省钱，一个帮你省事，一个帮你省时间。
 服务是我亲手打的，指令是我亲手写的，技能是我自己在跑的——打不通、不好用的，直接删，不留墓碑。
 
-> **Free tier, but actually verified.** 32 free services (AI / cloud storage / hosting / public APIs), 30 prompts and 2 skills. Every entry is tested by hand; dead links get deleted instead of kept as filler.
+> **Free tier, but actually verified.** 35 free services (AI / cloud storage / hosting / public APIs), 30 prompts and 2 skills. Every entry is tested by hand; dead links get deleted instead of kept as filler.
 
-![services](https://img.shields.io/badge/services-32-3ddc97) ![prompts](https://img.shields.io/badge/prompts-30-3ddc97) ![skills](https://img.shields.io/badge/skills-2-3ddc97) ![license](https://img.shields.io/badge/license-MIT-111827) [![link-check](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml/badge.svg)](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml)
+![services](https://img.shields.io/badge/services-35-3ddc97) ![prompts](https://img.shields.io/badge/prompts-30-3ddc97) ![skills](https://img.shields.io/badge/skills-2-3ddc97) ![license](https://img.shields.io/badge/license-MIT-111827) [![link-check](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml/badge.svg)](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml)
 
 English overview: [README.en.md](README.en.md)
 
-> 最后核对于 2026-10-25，每条都带自己的核对日期。
+> 最后核对于 2026-11-03，每条都带自己的核对日期。
 
 **三条路，看你现在要干嘛：**
 
@@ -79,7 +79,7 @@ English overview: [README.en.md](README.en.md)
 ## 目录
 
 - [AI](#ai) —— 5 条
-- [网盘](#%E7%BD%91%E7%9B%98) —— 2 条
+- [网盘](#%E7%BD%91%E7%9B%98) —— 5 条
 - [服务器](#%E6%9C%8D%E5%8A%A1%E5%99%A8) —— 10 条
 - [API](#api) —— 15 条
 - [AI 指令](#ai-%E6%8C%87%E4%BB%A4) —— 30 条
@@ -100,6 +100,14 @@ English overview: [README.en.md](README.en.md)
 ## 网盘
 
 免费空间、直链、离线下载与传输流量。
+
+### 主流网盘
+
+| 评级 | 名称 | 白嫖什么 | 门槛 | 坑 / 限制 | 最后确认 |
+| :--: | :-- | :-- | :-- | :-- | :-- |
+| **顶级** | [123 云盘](https://www.123pan.com) | 注册送 2TB 永久空间，上传下载不限速（浏览器单线程 20MB/s、客户端多线程 100MB/s），单文件可传 100GB；支持 URL 直链、自定义域名与防盗链；分享小于 100MB 的文件接收方可免登录下载 | 手机号 | 2025 年 11 月起下调了免费用户的月度流量额度，超额下载要付费（或按次买流量），「免费不限速」的旧口径已经不完全成立；分享文件免登录下载只对 100MB 以下生效，大文件接收方要登录或付费；明确禁止分享 torrent、含破解字样、翻墙类、涉外社交类文件与多层嵌套压缩包；重复文件只占一份容量（转存前可先查重） | 2026-10-25 |
+| **人上人** | [小飞机网盘](https://www.feijipan.com) | 免费 10GB 起步，做签到/邀请任务可扩到 1TB～2TB；宣称上传下载永不限速、无需会员；支持磁力/BT 离线下载、WebDAV 与 FTP 对接、回收站 30 天、原画视频在线播放 | 手机号 | 「不限速」是官方口径，实际有用户反馈免费账号下载大文件速度不理想，别当 CDN 用；免登录下载只覆盖 500MB 以内，且排除视频与 APK；免费额度实际是 10GB 起，1TB/2TB 要靠任务堆，宣传页容易让人误读；存储是服务商持钥的 AES-256，不是端到端加密，私密资料自己先压加密包 | 2026-10-25 |
+| **人上人** | [蓝奏云](https://www.lanzou.com) | 总容量不设上限，单文件 100MB（免费）；下载不限速、免登录、无验证码、支持直链；分享链接可设提取码与有效期 | 手机号 | 单文件 100MB 是硬门槛，大文件只能分卷；分享域名常变（lanzou.com / lanzoui / lanzoux / lanzouj），打不开就把二级域名的字母换一下试；免费账号在手机端分享 APK 受限；平台对投诉与违规内容审核很严，链接被封后无法恢复 | 2026-10-25 |
 
 ### 豆包生态
 
@@ -208,11 +216,11 @@ English overview: [README.en.md](README.en.md)
 | **夯** | [edge.text-to-speech.cn](https://edge.text-to-speech.cn) | 免登录的 Edge TTS 代理：322 个音色（142 个 locale，含 8 个 zh-CN、3 个粤语），POST /generate.php 一次出 MP3（24kHz/48kbps/mono）+ 逐句 SRT 字幕 | 免注册 | 每次先 GET 首页取 csrf-token，请求必须带 Referer 或 Origin，否则报「不允许的请求来源」；假成功陷阱：非法 voice 或 volume=0 也返回 200 + URL，下载到的是 32315 字节 HTML（md5 048a2241792d9efbc94d44a256d40ca4），必须验 MP3 帧同步 0xFF Ex 或 ID3；产物公开可下载、无鉴权；字幕按句切不智能断句；第三方逆向封装，随时可能关 | 2026-10-25 |
 | **人上人** | [浏览器 TTS 三件套](https://developer.mozilla.org/docs/Web/API/SpeechSynthesis) | Web Speech API（系统音色、完全免费离线）+ DECtalk WASM（1983 年老引擎，仅英文，11025Hz PCM）+ ResponsiveVoice CDN（51 语言 168 音色，旧版免 key） | 免注册 | Web Speech 各系统音色差异极大，Safari 长文本会截断；DECtalk 首次播放必须用户交互解锁 AudioContext；ResponsiveVoice 新版要 key 且仅限非商业；三者都不是「接口」，是前端方案，服务端批量合成用不上 | 2026-10-25 |
 
-### 视频解析
+### 多功能接口
 
 | 评级 | 名称 | 白嫖什么 | 门槛 | 坑 / 限制 | 最后确认 |
 | :--: | :-- | :-- | :-- | :-- | :-- |
-| **顶级** | [米人 API](https://api.mir6.com/api/bzjiexi) | 免费 B 站解析，GET ?url=<BV 链接> 返回标题、封面、简介与 data 数组（含直链），开放 CORS | 免注册 | 仅普通 BV 视频，番剧/电影/电视剧不支持；返回的是 DASH 分离流，视频音频要自己 ffmpeg 合流；第三方站点随时限流，别当前端唯一依赖 | 2026-10-25 |
+| **顶级** | [米人 API（18 个免费接口）](https://api.mir6.com/api/bzjiexi) | 免注册的接口集，共 18 个：IP 归属地（IPv4/IPv6、区县级精度）、手机号归属地、B 站视频解析、蓝奏云直链解析、域名权重查询、远程 DNS 解析、天气、二维码生成、随机语录、随机姓名、二次元壁纸、QQ 头像昵称解析、微信域名拦截检测、访客信息图等；站点日均调用 36 万次 | 免注册 | 全站免注册但有共享频次限制，高峰期会限流；B 站解析只支持普通视频，番剧/电影/电视剧不行；蓝奏云解析实测示例链接已失效（返回「所有链接变体均尝试失败」），成败取决于蓝奏当前域名与链接格式；返回结构不统一（有的 code:200，有的直接给 text 字段），调用前先看对应文档；个人站点运营，别把关键链路只挂它一个 | 2026-10-25 |
 
 ### 音乐
 
@@ -228,7 +236,7 @@ English overview: [README.en.md](README.en.md)
 | 评级 | 名称 | 白嫖什么 | 门槛 | 坑 / 限制 | 最后确认 |
 | :--: | :-- | :-- | :-- | :-- | :-- |
 | **夯** | [Open-Meteo](https://api.open-meteo.com/v1/forecast) | 逐日 / 逐小时预报、地理编码（geocoding-api）、空气质量（air-quality-api）三套接口全免 key、开放 CORS，实测 200 | 免注册 | 免费档限非商业，商用要订阅；中国区降水与云量精度一般；geocoding 中文有时取到乡镇级，要自己按 population 排序；变量名拼错不会报错、只回空数组 | 2026-10-25 |
-| **顶级** | [wttr.in](https://wttr.in/Beijing?format=j1) | 文本 / Markdown / JSON 三种输出，format=j1 给完整 JSON（当前天气 + 3 天逐时 + 天文），免 key | 免注册 | 无 SLA，高峰期明显变慢；中文城市名必须 URL 编码；j1 里数值全是字符串，运算前要转；返回体积大，前端别整包塞进状态 | 2026-10-25 |
+| **顶级** | [wttr.in](https://wttr.in/Beijing?format=j1) | 文本 / Markdown / JSON 三种输出，format=j1 给完整 JSON（当前天气 + 3 天逐时 + 天文），免 key | 免注册 | 中国大陆网络直连常连不上（实测 curl 返回 000），要自备代理或用镜像；无 SLA，高峰期明显变慢；中文城市名必须 URL 编码；j1 里数值全是字符串，运算前要转；返回体积大，前端别整包塞进状态 | 2026-10-25 |
 | **人上人** | [MET Norway](https://api.met.no/weatherapi/locationforecast/2.0/compact) | 挪威气象局全球预报，compact 端点返回 GeoJSON 时序，免 key | 免注册 | 强制要求带可识别的 User-Agent（含联系方式），UGC 抓取会被封；挪威境外精度一般；有小时级限流 | 2026-10-25 |
 | **人上人** | [7Timer](https://www.7timer.info/bin/astro.php) | 天文与常规两套产品，astro 给云量 / 视宁度 / 透明度，观星与摄影场景好用 | 免注册 | 6 小时一更新、网格分辨率粗；无中文；部分产品线已停更 | 2026-10-25 |
 | **人上人** | [中央气象台 nmc.cn](http://www.nmc.cn/rest/province) | 非公开接口：/rest/province 省市列表、/f/rest/tempchart 温度曲线、/f/rest/aqi 空气质量、/f/rest/real 实况 | 免注册 | 非官方 API，随时改；实测 /rest/province 正常，/f/rest/real/54511 返回结构在但字段全空；只适合当兜底，别当主数据源 | 2026-10-25 |

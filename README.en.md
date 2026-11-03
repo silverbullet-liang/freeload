@@ -2,7 +2,7 @@
 
 # Freeload
 
-**Free tier, but actually verified.** 32 free services, 30 prompts, 2 installable skills — every entry tested by hand, dead links deleted instead of kept as filler.
+**Free tier, but actually verified.** 35 free services, 30 prompts, 2 installable skills — every entry tested by hand, dead links deleted instead of kept as filler.
 
 [![link-check](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml/badge.svg)](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml)
 
@@ -13,7 +13,7 @@
 | Section | Rows | What it is |
 | :-- | :--: | :-- |
 | AI | 5 | Free model APIs — text, image, video. Free tokens, free keys. |
-| Cloud storage | 2 | Free storage, plus "file pools" you can search and share. |
+| Cloud storage | 5 | Free storage, plus "file pools" you can search and share. |
 | Hosting | 10 | Static hosts, PHP hosts, and publishing a page straight from your phone. |
 | APIs | 15 | Free weather, music, TTS and video-parse endpoints. |
 | Prompts | 30 | The prompts I actually use — one file each, sorted by purpose. |
