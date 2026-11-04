@@ -2,7 +2,7 @@
 
 # Freeload
 
-**Free tier, but actually verified.** 35 free services, 30 prompts, 2 installable skills — every entry tested by hand, dead links deleted instead of kept as filler.
+**Free tier, but actually verified.** 37 free services, 30 prompts, 2 installable skills — every entry tested by hand, dead links deleted instead of kept as filler.
 
 [![link-check](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml/badge.svg)](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml)
 

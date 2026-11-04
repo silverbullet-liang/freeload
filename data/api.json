@@ -31,6 +31,16 @@
     "checked": "2026-10-25"
   },
   {
+    "name": "夏柔 API 聚合站",
+    "url": "https://api.aa1.cn/",
+    "what": "免注册的免费接口目录，站方口径「上千款免费接口」、千位开发者入驻；覆盖 IP/域名查询、天气、热搜榜（微博/知乎/头条/抖音/UC）、随机文案、壁纸、表情包、OCR、临时邮箱、农历黄历、图片水印、文件托管等；每个接口有独立文档页与在线状态监测",
+    "gate": "免注册",
+    "group": "多功能接口",
+    "rating": "人上人",
+    "gotcha": "它是「目录 + 文档 + 监测」，绝大多数接口实际托管在第三方作者自己的域名上（如 api.yeyuannb.xyz、api.tinyaii.top），作者跑路或域名过期就直接死——实测首页推荐的免费 AI 模型中转指向 openai.1rmb.tk，域名已不存在；返回格式不统一，JSON / 纯文本 / HTML 表格混着来（状态监测接口直接吐 HTML）；同功能接口有多个作者版本，质量差别很大，挑之前先看文档页的调用量与监测状态；平台本身不稳时整站目录也打不开，别在生产链路里硬依赖",
+    "checked": "2026-11-04"
+  },
+  {
     "name": "zm.wwoyun.cn",
     "url": "https://zm.wwoyun.cn",
     "what": "NeteaseCloudMusicApi 公共实例（宁波），搜索 / 直链 / 详情 / 歌词全套，接口与官方一致，实测搜索 200",
@@ -151,5 +161,15 @@
     "rating": "人上人",
     "gotcha": "与 captcha.gurl.eu.org 的 token 不通用，服务端要按 channel 分开校验；只引 JS 不引 CSS 会变成一坨没有样式的按钮；个人维护的公共实例随时可能关；两套实例并用时校验失败必须 fail-closed，别默认放行",
     "checked": "2026-10-25"
+  },
+  {
+    "name": "MyMemory Translation API",
+    "url": "https://api.mymemory.translated.net/get?q=hello%20world&langpair=en%7Czh-CN",
+    "what": "免 key 的翻译接口，基于翻译记忆库 + 机器翻译；匿名每日 5000 字符，带上 de=<邮箱> 参数升到 50000 字符/天，CAT 工具白名单可到 150000；支持上百种语言对，返回里同时给机器译文与人工记忆库匹配（可按 quality 挑）",
+    "gate": "免注册",
+    "group": "翻译",
+    "rating": "顶级",
+    "gotcha": "q 单次上限 500 字节（UTF-8，中文约 160 字），长文必须自己切句；限额按「字符数」算不按请求数算，超了返回 responseStatus 403 并带 quotaFinished；语言码要用 zh-CN / zh-TW 而不是 zh；翻译质量是记忆库水平，专有名词与长句不稳，正式文案别直接用；带上 de=邮箱 就能把额度翻十倍，别忘了填",
+    "checked": "2026-11-04"
   }
 ]

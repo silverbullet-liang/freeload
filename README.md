@@ -2,17 +2,17 @@
 
 # 白嫖清单
 
-**35 个能白嫖的服务，30 条天天在用的 AI 指令，2 个能直接装的技能。**
+**37 个能白嫖的服务，30 条天天在用的 AI 指令，2 个能直接装的技能。**
 一个帮你省钱，一个帮你省事，一个帮你省时间。
 服务是我亲手打的，指令是我亲手写的，技能是我自己在跑的——打不通、不好用的，直接删，不留墓碑。
 
-> **Free tier, but actually verified.** 35 free services (AI / cloud storage / hosting / public APIs), 30 prompts and 2 skills. Every entry is tested by hand; dead links get deleted instead of kept as filler.
+> **Free tier, but actually verified.** 37 free services (AI / cloud storage / hosting / public APIs), 30 prompts and 2 skills. Every entry is tested by hand; dead links get deleted instead of kept as filler.
 
-![services](https://img.shields.io/badge/services-35-3ddc97) ![prompts](https://img.shields.io/badge/prompts-30-3ddc97) ![skills](https://img.shields.io/badge/skills-2-3ddc97) ![license](https://img.shields.io/badge/license-MIT-111827) [![link-check](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml/badge.svg)](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml)
+![services](https://img.shields.io/badge/services-37-3ddc97) ![prompts](https://img.shields.io/badge/prompts-30-3ddc97) ![skills](https://img.shields.io/badge/skills-2-3ddc97) ![license](https://img.shields.io/badge/license-MIT-111827) [![link-check](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml/badge.svg)](https://github.com/silverbullet-liang/freeload/actions/workflows/link-check.yml)
 
 English overview: [README.en.md](README.en.md)
 
-> 最后核对于 2026-11-03，每条都带自己的核对日期。
+> 最后核对于 2026-11-04，每条都带自己的核对日期。
 
 **三条路，看你现在要干嘛：**
 
@@ -81,7 +81,7 @@ English overview: [README.en.md](README.en.md)
 - [AI](#ai) —— 5 条
 - [网盘](#%E7%BD%91%E7%9B%98) —— 5 条
 - [服务器](#%E6%9C%8D%E5%8A%A1%E5%99%A8) —— 10 条
-- [API](#api) —— 15 条
+- [API](#api) —— 17 条
 - [AI 指令](#ai-%E6%8C%87%E4%BB%A4) —— 30 条
 - [AI Skills](#ai-skills) —— 2 个
 
@@ -221,6 +221,7 @@ English overview: [README.en.md](README.en.md)
 | 评级 | 名称 | 白嫖什么 | 门槛 | 坑 / 限制 | 最后确认 |
 | :--: | :-- | :-- | :-- | :-- | :-- |
 | **顶级** | [米人 API（18 个免费接口）](https://api.mir6.com/api/bzjiexi) | 免注册的接口集，共 18 个：IP 归属地（IPv4/IPv6、区县级精度）、手机号归属地、B 站视频解析、蓝奏云直链解析、域名权重查询、远程 DNS 解析、天气、二维码生成、随机语录、随机姓名、二次元壁纸、QQ 头像昵称解析、微信域名拦截检测、访客信息图等；站点日均调用 36 万次 | 免注册 | 全站免注册但有共享频次限制，高峰期会限流；B 站解析只支持普通视频，番剧/电影/电视剧不行；蓝奏云解析实测示例链接已失效（返回「所有链接变体均尝试失败」），成败取决于蓝奏当前域名与链接格式；返回结构不统一（有的 code:200，有的直接给 text 字段），调用前先看对应文档；个人站点运营，别把关键链路只挂它一个 | 2026-10-25 |
+| **人上人** | [夏柔 API 聚合站](https://api.aa1.cn/) | 免注册的免费接口目录，站方口径「上千款免费接口」、千位开发者入驻；覆盖 IP/域名查询、天气、热搜榜（微博/知乎/头条/抖音/UC）、随机文案、壁纸、表情包、OCR、临时邮箱、农历黄历、图片水印、文件托管等；每个接口有独立文档页与在线状态监测 | 免注册 | 它是「目录 + 文档 + 监测」，绝大多数接口实际托管在第三方作者自己的域名上（如 api.yeyuannb.xyz、api.tinyaii.top），作者跑路或域名过期就直接死——实测首页推荐的免费 AI 模型中转指向 openai.1rmb.tk，域名已不存在；返回格式不统一，JSON / 纯文本 / HTML 表格混着来（状态监测接口直接吐 HTML）；同功能接口有多个作者版本，质量差别很大，挑之前先看文档页的调用量与监测状态；平台本身不稳时整站目录也打不开，别在生产链路里硬依赖 | 2026-11-04 |
 
 ### 音乐
 
@@ -248,6 +249,12 @@ English overview: [README.en.md](README.en.md)
 | **顶级** | [Cap PoW 人机验证](https://captcha.gurl.eu.org) | 开源 PoW 人机验证（Cap），官方 cap-widget 托管在 Cloudflare Workers：前端嵌组件、算完 PoW 拿 token，服务端调 /siteverify 校验；不用注册、不用 key，也可以自己部署一套 | 免注册 | token 一次性且绑定实例，换实例必须重新解；CF Workers 实例在部分网络会被 403（用 curl 直连就吃过），线上要备一个备用实例；自部署要自己发 challenge 并校验，不是引个 JS 就完事；PoW 证明的是「算力活」，脚本照样能过，挡的是低成本刷量而不是真机器人 | 2026-10-25 |
 | **人上人** | [小象人机认证](https://xiaoxianghost.42web.io/renji/) | 一个共享的 Cloudflare Turnstile 实例：页面里嵌 data-sitekey="0x4AAAAAADfVUwxVYi1RFGI0"，验证 token 提交到它那儿校验，通过后按你的流程放行；不用注册 Cloudflare、不用自建 sitekey | 免注册 | sitekey 是共享的，别人拿它刷量会连累你一起被 CF 限流；校验只回 HTML，没有 JSON API，要自己用表单或 iframe 接；站点跑在 InfinityFree 上，本身带 /aes.js 反爬挑战，服务端直连拿不到真页面（要先用它给的 AES cookie 过挑战），所以只能浏览器端用；第三方随时关停；认真做站还是自己注册 Turnstile——免费额度 100 万次/月，注册成本只有几分钟 | 2026-10-25 |
 | **人上人** | [Cap 备用实例（cap-pow.wuw.li）](https://cap-pow.wuw.li) | Cap 的 PHP 公共实例，给主实例兜底：自带 cap-pow.js（5KB），必须同时加载 cap-pow.css（2.7KB），组件 class 固定；前端 3 秒没渲染出验证框就切过来 | 免注册 | 与 captcha.gurl.eu.org 的 token 不通用，服务端要按 channel 分开校验；只引 JS 不引 CSS 会变成一坨没有样式的按钮；个人维护的公共实例随时可能关；两套实例并用时校验失败必须 fail-closed，别默认放行 | 2026-10-25 |
+
+### 翻译
+
+| 评级 | 名称 | 白嫖什么 | 门槛 | 坑 / 限制 | 最后确认 |
+| :--: | :-- | :-- | :-- | :-- | :-- |
+| **顶级** | [MyMemory Translation API](https://api.mymemory.translated.net/get?q=hello%20world&langpair=en%7Czh-CN) | 免 key 的翻译接口，基于翻译记忆库 + 机器翻译；匿名每日 5000 字符，带上 de=<邮箱> 参数升到 50000 字符/天，CAT 工具白名单可到 150000；支持上百种语言对，返回里同时给机器译文与人工记忆库匹配（可按 quality 挑） | 免注册 | q 单次上限 500 字节（UTF-8，中文约 160 字），长文必须自己切句；限额按「字符数」算不按请求数算，超了返回 responseStatus 403 并带 quotaFinished；语言码要用 zh-CN / zh-TW 而不是 zh；翻译质量是记忆库水平，专有名词与长句不稳，正式文案别直接用；带上 de=邮箱 就能把额度翻十倍，别忘了填 | 2026-11-04 |
 
 ## AI 指令
 
